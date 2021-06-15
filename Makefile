@@ -2,7 +2,7 @@ CC =	gcc
 NAME =	demo
 SRC =	./src/game.c	\
 		./src/misc.c	\
-		.src/main.c
+		./src/main.c
 HED =	./include/game.h
 OBJ =	$(SRC:%.c=%.o)
 RM =	rm -f

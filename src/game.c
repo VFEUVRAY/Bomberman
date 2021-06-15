@@ -5,7 +5,7 @@
 **      game specific functions
 */
 
-#include "game.h"
+#include "../include/game.h"
 
 /**
  * will initiate game + SDL

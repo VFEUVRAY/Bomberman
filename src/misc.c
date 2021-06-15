@@ -5,7 +5,7 @@
 **      random useful functions
 */
 
-#include "game.h"
+#include "../include/game.h"
 
 int     my_strlen(char const *str)
 {

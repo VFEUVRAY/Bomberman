@@ -5,7 +5,7 @@
 **      main for bomberman training ting
 */
 
-#include "game.h"
+#include "../include/game.h"
 
 int main()
 {
