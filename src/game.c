@@ -30,6 +30,9 @@ game_t  *game_init()
         game_destroy(game);
         return (NULL);
     }
+
+    game->screenSize.x = 640;
+    game->screenSize.y = 480;
     return (game);
 }
 
