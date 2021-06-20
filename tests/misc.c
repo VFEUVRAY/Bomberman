@@ -5,7 +5,7 @@
 **      random useful functions
 */
 
-#include "../include/game.h"
+#include "game.h"
 
 static strfunc_t strfuncs[2] = {&my_putstr, &my_puterr};
 
