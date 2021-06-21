@@ -1,5 +1,7 @@
 # Bomberman Dev Basic doc
 
+For check type variables, you can use the "bool_t" typedef in the game.h. It's a char typedef made for clearer program reading when use for boolean type checks.<br>
+
 Can output multiple strings on stderr via my_putCharArray function.<br>
 Cast the expression is the following way: (char const *[]){"string1", "string2", "string3", NULL}<br>
 <b>Be sure to add a NULL at the end of the array.</b><br>
@@ -20,6 +22,13 @@ Bombs are placed on the same tile as character, character coordinates are passed
 Bomb adding function also adds new node to Bomb queue (add_bomb (bombs.c))<br>
 One pass through bomb queue at every graphical refresh to display all of them<br>
 
+Input repetitions upon key holding is handled in two phases to guarantee fluid key hold behavior.<br>
+The game structure contains an array of 4 bool_t (char): directionKeyHoldMem.<br>
+The array elements are initialised at 0 upon game structure initialisation.<br>
+When a direction key is pressed, the corresponding slot in directionKeyHoldMem is set to 1.<br>
+Releasing a key sets the corresponding slot to 0.<br>
+The game_move_player functions only checks if the corresponding direction slot is set to 1.<br>
+Currently only one direction at a time is supported, might look into that for the final project.<br>
 
 # Current state:
 
@@ -45,6 +54,7 @@ Other goal:
 - Clean up character sprite looping (no need for globals, add necessary variables to player object) <b>- DONE -</b><br>
 - New "player_t" might be created to seperate in a clearer manner the player object and its necessities <b>- DONE -</b><br>
 - player object needs a second rectangle as source for sheet sprite cutting, and a loop index <b>- DONE -</b><br>
+- Work on a different looping mechanism for both bomb and player sprite: bomb should loop in a "boomerang" fashion, player should go back to idle frame before going to its second step frame (all this is pretty optional) <br>
 
 # Controls:<br>
 Arrows for moving, B for setting a bomb on the ground, escape for closing game.
