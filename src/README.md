@@ -34,17 +34,17 @@ Adding bomb handling functions.
 Goal:
 
 - Add support for direction key holding, currently is done via default key repetition which is not good. See SDLKEY_Scancodes stuff<br>
-- Initializing the bomb queue upon game startup (empty)<br>
-- Implement bomb setting through button press<br>
-- Calling a bomb creating function upon input, function has to get player coordinates, add bomb object to bomb queue, set appropriate timer<br>
-- Add pass through bomb list at rendering, render bombs before player sprite, decrement each bomb's timer (do both at the same time to avoid multiple passes through)<br>
-- Add sprite loop handling to bomb objects, each bomb object must have its own sprite looping handler<br>
+- Initializing the bomb queue upon game startup (empty) <b>- DONE -</b><br>
+- Implement bomb setting through button press <b>- DONE -</b><br>
+- Calling a bomb creating function upon input, function has to get player coordinates, add bomb object to bomb queue, set appropriate timer <b>- DONE -</b><br>
+- Add pass through bomb list at rendering, render bombs before player sprite, decrement each bomb's timer (do both at the same time to avoid multiple passes through) <b> - Partially done: 2 passes through per graphic refresh - </b><br>
+- Add sprite loop handling to bomb objects, each bomb object must have its own sprite looping handler <b>- DONE -</b><br>
 
 Other goal:
 
-- Clean up character sprite looping (no need for globals, add necessary variables to player object)<br>
-- New "player_t" might be created to seperate in a clearer manner the player object and its necessities<br>
-- player object needs a second rectangle as source for sheet sprite cutting, and a loop index<br>
+- Clean up character sprite looping (no need for globals, add necessary variables to player object) <b>- DONE -</b><br>
+- New "player_t" might be created to seperate in a clearer manner the player object and its necessities <b>- DONE -</b><br>
+- player object needs a second rectangle as source for sheet sprite cutting, and a loop index <b>- DONE -</b><br>
 
 # Controls:<br>
 Arrows for moving, B for setting a bomb on the ground, escape for closing game.
