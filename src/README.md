@@ -1,14 +1,15 @@
 # Bomberman Dev Basic doc
 
-Can output multiple strings on stderr via my_putCharArray function.
-Cast the expression is the following way: (char const *[]){"string1", "string2", "string3", NULL}
-Be sure to add a NULL at the end of the array.
-Only send file descriptor for stdout and stderr for now (1 and 2).
+Can output multiple strings on stderr via my_putCharArray function.<br>
+Cast the expression is the following way: (char const *[]){"string1", "string2", "string3", NULL}<br>
+Be sure to add a NULL at the end of the array.<br>
+Only send file descriptor for stdout and stderr for now (1 and 2).<br>
 
-Animation is handlded through sheet. Whole sheet is loaded in character structure.
-Source rectangle is adjusted depending on loop status. very rough and dirty for now.
+Animation is handlded through sheet. Whole sheet is loaded in character structure.<br>
+Source rectangle is adjusted depending on loop status. very rough and dirty for now.<br>
+Will polish it up later on<br>
 
-Current work:
+# Current work:
 
 Adding bomb handling functions.
 
@@ -26,5 +27,5 @@ Other goal:
 - New "player_t" might be created to seperate in a clearer manner the player object and its necessities<br>
 - player object needs a second rectangle as source for sheet sprite cutting, and a loop index<br>
 
-Controls:
+# Controls:<br>
 Arrows for moving, escape for closing game.
