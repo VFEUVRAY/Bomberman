@@ -1,6 +1,12 @@
 # Bomberman
 Bomberman backup and training files for school project
 
+# Current state:
+
+Should be good for submission of first step.<br>
+Some things would be nice to add like bomb setting cooldown, or detection of already set bomb at current tile<br>
+Not really a priority since not asked in the step goals for now.<br>
+
 # Current work:
 
 Adding bomb handling functions.
