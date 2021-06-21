@@ -3,13 +3,15 @@ Bomberman backup and training files for school project
 
 # DEVELOPPERS DOC
 
-[Refer to this README for general information about how the code works](./src/)
+[Refer to the README in src folder for general informations about how the code works](./src/)
 
 # Current state:
 
 Should be good for submission of first step.<br>
 Some things would be nice to add like bomb setting cooldown, or detection of already set bomb at current tile<br>
 Not really a priority since not asked in the step goals for now.<br>
+
+Should be no memory problems caused by our end, makefile is working<br>
 
 # Current work:
 
@@ -30,4 +32,4 @@ Other goal:
 - player object needs a second rectangle as source for sheet sprite cutting, and a loop index<br>
 
 # Controls:<br>
-Arrows for moving, escape for closing game.
+Arrows for moving, B for setting bomb, escape for closing game.
