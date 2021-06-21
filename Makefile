@@ -6,10 +6,11 @@ SRC =	./src/game.c				\
 		./src/main.c
 HED =	./include/game.h
 OBJ =	$(SRC:%.c=%.o)
+LIBFLAGS = -lSDL2 -lSDL2_image
 RM =	rm -f
 
 $(NAME):	$(OBJ)
-			$(CC) `pkg-config --cflags sdl2 SDL2_image` $(HED) $(OBJ) -o $(NAME) `pkg-config --libs sdl2 SDL2_image`
+			$(CC) $(HED) $(OBJ) -o $(NAME) $(LIBFLAGS)
 all:	$(NAME)
 clean:
 		$(RM) $(OBJ)
