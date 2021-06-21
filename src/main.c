@@ -22,9 +22,10 @@ int main()
     if (game){
         my_putstr("SDL Initiated OK\n");
     }
-    while (!quit) {
+    while (quit != 1) {
         game_draw(game);
         quit = game_event(game);
+        game_movePlayer(game);
         SDL_Delay(16);
     }
     game_destroy(game);

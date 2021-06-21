@@ -18,6 +18,8 @@
 Is used for convenient multipurpose output function (misc.c)
 */
 typedef void (*strfunc_t) (char const *);
+/*typedef of char as bool_t, used when we just need small variable for checking purposes*/
+typedef char bool_t;
 
 typedef struct game_object_s {
     SDL_Texture*    oTexture;
@@ -66,6 +68,8 @@ typedef struct game_s {
     player_object_t pPlayer;
     game_object_t   pMap;
     bomb_queue_t    *pBombs;
+    bool_t          directionKeyHoldMem[4];
+    bool_t          bombKeyHoldCheck;
 } game_t;
 
 
@@ -74,7 +78,7 @@ game_t  *game_init();
 void    game_destroy(game_t *game);
 void    game_draw(game_t *game);
 int     game_event(game_t *game);
-void    game_movePlayer(game_t *game, SDL_Keycode direction);
+void    game_movePlayer(game_t *game);
 
 /*general object related (object_initializer.c)*/
 void    object_init(game_object_t *object, int const x, int const y, int const w, int const h);
