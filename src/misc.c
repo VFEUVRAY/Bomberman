@@ -7,6 +7,7 @@
 
 #include "../include/game.h"
 
+/* function pointer array used temporarily for strings output function*/
 static strfunc_t strfuncs[2] = {&my_putstr, &my_puterr};
 
 int     my_strlen(char const *str)

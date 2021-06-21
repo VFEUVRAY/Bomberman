@@ -29,6 +29,7 @@ game_t  *game_init()
     game->pWindow = NULL;
     game->pTexPlayer = NULL;
     game->pPlayer.oTexture = NULL;
+    game->pBombTexture = NULL;
     object_init(&game->pPlayer, 30, 30, 30, 30);
     object_init(&game->pMap, 0, 0, game->screenSize.x, game->screenSize.y);
     /*
@@ -85,6 +86,15 @@ game_t  *game_init()
         return (NULL);
     }
     game->pMap.oTexture = SDL_CreateTextureFromSurface(game->pRenderer, surfacePlayer);
+    SDL_FreeSurface(surfacePlayer);
+    surfacePlayer = IMG_Load("./assets/BombSheet.png");
+    if (!surfacePlayer) {
+        my_putCharArray((char const *[]){"Could not open Bomb Image:", IMG_GetError(), "\n", NULL}, 2);
+        game_destroy(game);
+        return (NULL);
+    }
+    game->pBombTexture = SDL_CreateTextureFromSurface(game->pRenderer, surfacePlayer);
+    SDL_FreeSurface(surfacePlayer);
     return (game);
 }
 
