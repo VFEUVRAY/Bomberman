@@ -1,5 +1,8 @@
+# Bomberman Dev Basic doc
+
 Can output multiple strings on stderr via my_putCharArray function.
-Be sure to add a NULL pointer at the end of the array.
+Cast the expression is the following way: (char const *[]){"string1", "string2", "string3", NULL}
+Be sure to add a NULL at the end of the array.
 Only send file descriptor for stdout and stderr for now (1 and 2).
 
 Animation is handlded through sheet. Whole sheet is loaded in character structure.
