@@ -29,7 +29,8 @@ game_t  *game_init()
     game->pWindow = NULL;
     game->pTexPlayer = NULL;
     game->pPlayer.oTexture = NULL;
-    object_init(&game->pPlayer, game->screenSize.x / 2, game->screenSize.y / 2, 40, 30);
+    object_init(&game->pPlayer, 30, 30, 30, 30);
+    object_init(&game->pMap, 0, 0, game->screenSize.x, game->screenSize.y);
     /*
     game->pPlayer.positionRect.x = ;
     game->pPlayer.positionRect.y = ;
@@ -51,32 +52,39 @@ game_t  *game_init()
                             SDL_WINDOWPOS_UNDEFINED,
                             game->screenSize.x, game->screenSize.y, SDL_WINDOW_SHOWN); /*(title, size x, size y, pos x, pos y, some flags (ex fullscreen, borderless etc..))*/
     if (!game->pWindow) {
-        my_putCharArray((char const *[]){"Could not Initialize SDL Window:", SDL_GetError(), "\n"}, 2);
+        my_putCharArray((char const *[]){"Could not Initialize SDL Window:", SDL_GetError(), "\n", NULL}, 2);
         game_destroy(game);
         return (NULL);
     }
     game->pRenderer = SDL_CreateRenderer(game->pWindow, -1, SDL_RENDERER_ACCELERATED);
     if (!game->pRenderer) {
-        my_putCharArray((char const *[]){"Could not Initialize SDL Renderer:", SDL_GetError(), "\n"}, 2);
+        my_putCharArray((char const *[]){"Could not Initialize SDL Renderer:", SDL_GetError(), "\n", NULL}, 2);
         game_destroy(game);
         return (NULL);
     }
 
     /*loading a texture*/
     /*IMG_Init(IMG_INIT_PNG);*/
-    SDL_Surface* surfacePlayer = IMG_Load("./assets/player.png");
+    SDL_Surface* surfacePlayer = IMG_Load("./assets/PlayerDummySheet.png");
     if (!surfacePlayer) {
-        my_putCharArray((char const *[]){"Could not open Player Image:", IMG_GetError(), "\n"}, 2);
+        my_putCharArray((char const *[]){"Could not open Player Image:", IMG_GetError(), "\n", NULL}, 2);
         game_destroy(game);
         return (NULL);
     }
     game->pPlayer.oTexture = SDL_CreateTextureFromSurface(game->pRenderer, surfacePlayer);
     if (!game->pPlayer.oTexture) {
-        my_putCharArray((char const *[]){"Could create texture from image generated surface:", SDL_GetError(), "\n"}, 2);
+        my_putCharArray((char const *[]){"Could create texture from image generated surface:", SDL_GetError(), "\n", NULL}, 2);
         game_destroy(game);
         return (NULL);
     }
     SDL_FreeSurface(surfacePlayer);
+    surfacePlayer = IMG_Load("./assets/bombermap.jpg");
+    if (!surfacePlayer) {
+        my_putCharArray((char const *[]){"Could not open Map Image:", IMG_GetError(), "\n", NULL}, 2);
+        game_destroy(game);
+        return (NULL);
+    }
+    game->pMap.oTexture = SDL_CreateTextureFromSurface(game->pRenderer, surfacePlayer);
     return (game);
 }
 
@@ -88,8 +96,10 @@ void    game_destroy(game_t *game)
 {
     /*close SDL modules*/
     if (game) {
-        if (game->pTexPlayer)
-            SDL_DestroyTexture(game->pTexPlayer);
+        if (game->pPlayer.oTexture)
+            SDL_DestroyTexture(game->pPlayer.oTexture);
+        if (game->pMap.oTexture)
+            SDL_DestroyTexture(game->pMap.oTexture);
         if (game->pRenderer)
             SDL_DestroyRenderer(game->pRenderer);
         if (game->pWindow)
@@ -110,19 +120,89 @@ void    game_draw(game_t *game)
     SDL_RenderClear(game->pRenderer);
 
     /*display player*/
-    SDL_RenderCopy(game->pRenderer, game->pPlayer.oTexture, NULL, &game->pPlayer.positionRect);
+    SDL_RenderCopy(game->pRenderer, game->pMap.oTexture, NULL, &game->pMap.positionRect);
+    SDL_RenderCopy(game->pRenderer, game->pPlayer.oTexture, &RECT_LOPP, &game->pPlayer.positionRect);
 
     /*preset render*/
     SDL_RenderPresent(game->pRenderer);
 
-    SDL_Delay(2000);
-    
-    game->pPlayer.positionRect.h = 80;
+}
 
-    SDL_RenderCopy(game->pRenderer, game->pPlayer.oTexture, NULL, &game->pPlayer.positionRect);
+/**
+ * event handling func, return 1 = quit
+ * */
+int     game_event(game_t *game)
+{
+    SDL_Event   event;
+    if (SDL_PollEvent(&event)) {
+        if (event.type == SDL_QUIT) {
+            return (1);
+        } else if (event.type == SDL_KEYDOWN) {
+            /*input handling*/
+            switch (event.key.keysym.sym) {
+                case SDLK_ESCAPE :
+                    return (1);
+                    break;
+                case SDLK_UP :
+                    game_movePlayer(game, SDLK_UP);
+                    return (0);
+                    break;
+                case SDLK_DOWN :
+                    game_movePlayer(game, SDLK_DOWN);
+                    return (0);
+                    break;
+                case SDLK_LEFT :
+                    game_movePlayer(game, SDLK_LEFT);
+                    return (0);
+                    break;
+                case SDLK_RIGHT :
+                    game_movePlayer(game, SDLK_RIGHT);
+                    return (0);
+                    break;
+                default :
+                    my_putCharArray((char const *[]){"Key not recognized: ", SDL_GetKeyName(event.key.keysym.sym) ," \n", NULL}, 2);
+                    return (0);
+            }
+        }
+    }
+    return (0);
+}
 
-    SDL_RenderPresent(game->pRenderer);
-
-    SDL_Delay(2000);
-
+void    game_movePlayer(game_t *game, SDL_Keycode direction)
+{
+    if (direction == SDLK_UP) {
+        game->pPlayer.positionRect.y = (game->pPlayer.positionRect.y - 30) * (game->pPlayer.positionRect.y > 60)
+                                        + (30 * (game->pPlayer.positionRect.y <= 60));
+        if (WALK_LOOP_TICK < 6 || WALK_LOOP_TICK > 8)
+            WALK_LOOP_TICK = 6;
+        else
+            WALK_LOOP_TICK = (WALK_LOOP_TICK + 1) % 9;
+        WALK_LOOP_TICK = WALK_LOOP_TICK ? WALK_LOOP_TICK : 6;
+    } else if (direction == SDLK_DOWN) {
+        game->pPlayer.positionRect.y = (game->pPlayer.positionRect.y + 30) * ((game->pPlayer.positionRect.y) < 420)
+                                        + (420 * (game->pPlayer.positionRect.y >= 420));
+        if (WALK_LOOP_TICK < 9)
+            WALK_LOOP_TICK = 9;
+        else
+            WALK_LOOP_TICK = (WALK_LOOP_TICK + 1) % 12;
+        WALK_LOOP_TICK = WALK_LOOP_TICK ? WALK_LOOP_TICK : 9;
+    } else if (direction == SDLK_LEFT) {
+        game->pPlayer.positionRect.x = (game->pPlayer.positionRect.x - 30) * (game->pPlayer.positionRect.x > 60)
+                                        + (30 * (game->pPlayer.positionRect.x <= 60));
+        if (WALK_LOOP_TICK < 3 || WALK_LOOP_TICK > 5)
+            WALK_LOOP_TICK = 3;
+        else
+            WALK_LOOP_TICK = (WALK_LOOP_TICK + 1) % 6;
+        WALK_LOOP_TICK = WALK_LOOP_TICK ? WALK_LOOP_TICK : 3;
+    } else if (direction == SDLK_RIGHT) {
+        game->pPlayer.positionRect.x = (game->pPlayer.positionRect.x + 30) * ((game->pPlayer.positionRect.x) < 570)
+                                        + (570 * (game->pPlayer.positionRect.x >= 570));
+        printf("%d\n", game->pPlayer.positionRect.x);
+        if (WALK_LOOP_TICK > 2)
+            WALK_LOOP_TICK = 0;
+        else
+            WALK_LOOP_TICK = (WALK_LOOP_TICK + 1) % 3;
+    }
+    /*WALK_LOOP_TICK = (WALK_LOOP_TICK + 1) % 12;*/
+    RECT_LOPP.x = WALK_LOOP_TICK * 30;
 }

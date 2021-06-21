@@ -15,6 +15,7 @@
 # include <stdlib.h>
 
 typedef void (*strfunc_t) (char const *);
+typedef char* const string_array_t;
 
 typedef struct game_object_s {
     SDL_Texture*    oTexture;
@@ -37,6 +38,8 @@ game_t  *game_init();
 void    game_destroy(game_t *game);
 void    game_draw(game_t *game);
 void    object_init(game_object_t *object, int const x, int const y, int const w, int const h);
+int     game_event(game_t *game);
+void    game_movePlayer(game_t *game, SDL_Keycode direction);
 
 /*misc*/
 int     my_strlen(char const *str);
@@ -46,6 +49,6 @@ void    my_putchar(char const c, char const fd);
 void    my_putCharArray(char const **array, char const fd);
 
 /* globals used to streamline error checking */
-int INITIALIZING_ERROR_CHECK;
-
+int WALK_LOOP_TICK;
+SDL_Rect RECT_LOPP;
 #endif /* GAME_H */
