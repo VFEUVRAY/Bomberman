@@ -31,6 +31,7 @@ Other goal:
 - Clean up character sprite looping (no need for globals, add necessary variables to player object) <b>- DONE -</b><br>
 - New "player_t" might be created to seperate in a clearer manner the player object and its necessities <b>- DONE -</b><br>
 - player object needs a second rectangle as source for sheet sprite cutting, and a loop index <b>- DONE -</b><br>
+- Work on a different looping mechanism for both bomb and player sprite: bomb should loop in a "boomerang" fashion, player should go back to idle frame before going to its second step frame (all this is pretty optional) <br>
 
 # Controls:<br>
 Arrows for moving, B for setting bomb, escape for closing game.
