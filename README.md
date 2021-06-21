@@ -3,7 +3,7 @@ Bomberman backup and training files for school project
 
 # DEVELOPPERS DOC
 
-[Refer to this README for general information about how the code works](./src/README.md)
+[Refer to this README for general information about how the code works](./src/)
 
 # Current state:
 
