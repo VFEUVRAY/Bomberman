@@ -30,7 +30,8 @@ game_t  *game_init()
     game->pTexPlayer = NULL;
     game->pPlayer.oTexture = NULL;
     game->pBombTexture = NULL;
-    object_init(&game->pPlayer, 30, 30, 30, 30);
+    game->pBombs = NULL;
+    player_init(&game->pPlayer);
     object_init(&game->pMap, 0, 0, game->screenSize.x, game->screenSize.y);
     /*
     game->pPlayer.positionRect.x = ;
@@ -106,6 +107,10 @@ void    game_destroy(game_t *game)
 {
     /*close SDL modules*/
     if (game) {
+        if (game->pBombs)
+            free_queue(&game->pBombs);
+        if (game->pBombTexture)
+            SDL_DestroyTexture(game->pBombTexture);
         if (game->pPlayer.oTexture)
             SDL_DestroyTexture(game->pPlayer.oTexture);
         if (game->pMap.oTexture)
@@ -125,17 +130,25 @@ void    game_destroy(game_t *game)
 
 void    game_draw(game_t *game)
 {
+    bomb_queue_t *currentBomb = game->pBombs;
+
     /*cleanup screen by filling with black*/
     SDL_SetRenderDrawColor(game->pRenderer, 0, 0, 0, 255);
     SDL_RenderClear(game->pRenderer);
 
     /*display player*/
     SDL_RenderCopy(game->pRenderer, game->pMap.oTexture, NULL, &game->pMap.positionRect);
-    SDL_RenderCopy(game->pRenderer, game->pPlayer.oTexture, &RECT_LOPP, &game->pPlayer.positionRect);
+    while (currentBomb) {
+        SDL_RenderCopy(game->pRenderer, game->pBombTexture, &currentBomb->bomb.spriteRect, &currentBomb->bomb.positionRect);
+        currentBomb = currentBomb->next;
+    }
+    SDL_RenderCopy(game->pRenderer, game->pPlayer.oTexture, &game->pPlayer.spriteRect, &game->pPlayer.positionRect);
 
     /*preset render*/
     SDL_RenderPresent(game->pRenderer);
 
+    if (game->pBombs)
+        tick_bombs(&game->pBombs);
 }
 
 /**
@@ -169,6 +182,10 @@ int     game_event(game_t *game)
                     game_movePlayer(game, SDLK_RIGHT);
                     return (0);
                     break;
+                case SDLK_b :
+                    add_bomb(&game->pBombs, &game->pPlayer.positionRect);
+                    return (0);
+                    break;
                 default :
                     my_putCharArray((char const *[]){"Key not recognized: ", SDL_GetKeyName(event.key.keysym.sym) ," \n", NULL}, 2);
                     return (0);
@@ -183,36 +200,20 @@ void    game_movePlayer(game_t *game, SDL_Keycode direction)
     if (direction == SDLK_UP) {
         game->pPlayer.positionRect.y = (game->pPlayer.positionRect.y - 30) * (game->pPlayer.positionRect.y > 60)
                                         + (30 * (game->pPlayer.positionRect.y <= 60));
-        if (WALK_LOOP_TICK < 6 || WALK_LOOP_TICK > 8)
-            WALK_LOOP_TICK = 6;
-        else
-            WALK_LOOP_TICK = (WALK_LOOP_TICK + 1) % 9;
-        WALK_LOOP_TICK = WALK_LOOP_TICK ? WALK_LOOP_TICK : 6;
+        game->pPlayer.sheetLoopIndex = ((game->pPlayer.sheetLoopIndex + 1) % 3) + 6;
     } else if (direction == SDLK_DOWN) {
         game->pPlayer.positionRect.y = (game->pPlayer.positionRect.y + 30) * ((game->pPlayer.positionRect.y) < 420)
                                         + (420 * (game->pPlayer.positionRect.y >= 420));
-        if (WALK_LOOP_TICK < 9)
-            WALK_LOOP_TICK = 9;
-        else
-            WALK_LOOP_TICK = (WALK_LOOP_TICK + 1) % 12;
-        WALK_LOOP_TICK = WALK_LOOP_TICK ? WALK_LOOP_TICK : 9;
+        game->pPlayer.sheetLoopIndex = ((game->pPlayer.sheetLoopIndex + 1) % 3) + 9;
     } else if (direction == SDLK_LEFT) {
         game->pPlayer.positionRect.x = (game->pPlayer.positionRect.x - 30) * (game->pPlayer.positionRect.x > 60)
                                         + (30 * (game->pPlayer.positionRect.x <= 60));
-        if (WALK_LOOP_TICK < 3 || WALK_LOOP_TICK > 5)
-            WALK_LOOP_TICK = 3;
-        else
-            WALK_LOOP_TICK = (WALK_LOOP_TICK + 1) % 6;
-        WALK_LOOP_TICK = WALK_LOOP_TICK ? WALK_LOOP_TICK : 3;
+        game->pPlayer.sheetLoopIndex = ((game->pPlayer.sheetLoopIndex + 1) % 3) + 3;
     } else if (direction == SDLK_RIGHT) {
         game->pPlayer.positionRect.x = (game->pPlayer.positionRect.x + 30) * ((game->pPlayer.positionRect.x) < 570)
                                         + (570 * (game->pPlayer.positionRect.x >= 570));
-        printf("%d\n", game->pPlayer.positionRect.x);
-        if (WALK_LOOP_TICK > 2)
-            WALK_LOOP_TICK = 0;
-        else
-            WALK_LOOP_TICK = (WALK_LOOP_TICK + 1) % 3;
+        game->pPlayer.sheetLoopIndex = ((game->pPlayer.sheetLoopIndex + 1) % 3);
     }
     /*WALK_LOOP_TICK = (WALK_LOOP_TICK + 1) % 12;*/
-    RECT_LOPP.x = WALK_LOOP_TICK * 30;
+    game->pPlayer.spriteRect.x = game->pPlayer.sheetLoopIndex * 30;
 }

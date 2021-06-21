@@ -22,14 +22,26 @@ typedef void (*strfunc_t) (char const *);
 typedef struct game_object_s {
     SDL_Texture*    oTexture;
     SDL_Rect        positionRect;
+    SDL_Rect        spriteRect;
 } game_object_t;
 
+/*Structure specific to player object
+the added spriteRect is meant to be used as source rectangle
+in the SDL_RenderCopy function, this will allow to get the precise sprite wanted for current animation
+*/
+typedef struct player_object_s {
+    SDL_Texture*    oTexture;
+    SDL_Rect        positionRect;
+    SDL_Rect        spriteRect;
+    unsigned int    sheetLoopIndex;
+} player_object_t;
 
 /* bomb object is different because it doesn't need to hold its own texture
 also needs a count which will dictate when the object is to be deleted from linked list
 */
 typedef struct bomb_object_s {
     SDL_Rect        positionRect;
+    SDL_Rect        spriteRect;
     unsigned int    count;
 } bomb_object_t;
 
@@ -37,7 +49,7 @@ typedef struct bomb_object_s {
 
 typedef struct bomb_queue_s {
     bomb_object_t bomb;
-    struct bomb_object_s *next;
+    struct bomb_queue_s *next;
 } bomb_queue_t;
 
 /*General game structure, will hold information necessary for each rendering loops
@@ -50,8 +62,10 @@ typedef struct game_s {
 
     SDL_Texture*    pTexPlayer;
     SDL_Texture*    pBombTexture;
-    game_object_t   pPlayer;
+    /*game_object_t   pPlayer;*/
+    player_object_t pPlayer;
     game_object_t   pMap;
+    bomb_queue_t    *pBombs;
 } game_t;
 
 
@@ -64,11 +78,13 @@ void    game_movePlayer(game_t *game, SDL_Keycode direction);
 
 /*general object related (object_initializer.c)*/
 void    object_init(game_object_t *object, int const x, int const y, int const w, int const h);
-
+void    player_init(player_object_t *player);
 
 /* bomb queue related (bombs.c)*/
-bomb_queue_t *pop_bomb(bomb_queue_t *queue);
-void add_bomb(bomb_queue_t *queue, SDL_Rect *coords);
+bomb_queue_t    *pop_bomb(bomb_queue_t *queue);
+void            add_bomb(bomb_queue_t **queue, SDL_Rect *coords);
+void            tick_bombs(bomb_queue_t **queue);
+void            free_queue(bomb_queue_t **queue);
 
 /*miscellanious functions (misc.c)*/
 int     my_strlen(char const *str);

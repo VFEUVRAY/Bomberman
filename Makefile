@@ -3,6 +3,7 @@ NAME =	demo
 SRC =	./src/game.c				\
 		./src/misc.c				\
 		./src/object_initializer.c	\
+		./src/bombs.c				\
 		./src/main.c
 HED =	./include/game.h
 OBJ =	$(SRC:%.c=%.o)
