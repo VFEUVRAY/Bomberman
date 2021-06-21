@@ -33,7 +33,7 @@ Adding bomb handling functions.
 
 Goal:
 
-- Add support for direction key holding, currently is done via default key repetition which is not good. See SDLKEY_Scancodes stuff<br>
+- Add support for direction key holding, currently is done via default key repetition which is not good. See SDLKEY_Scancodes stuff <b>- DONE with another method-</b><br>
 - Initializing the bomb queue upon game startup (empty) <b>- DONE -</b><br>
 - Implement bomb setting through button press <b>- DONE -</b><br>
 - Calling a bomb creating function upon input, function has to get player coordinates, add bomb object to bomb queue, set appropriate timer <b>- DONE -</b><br>
