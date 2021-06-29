@@ -231,20 +231,20 @@ int     game_event(game_t *game)
 void    game_movePlayer(game_t *game)
 {
     if (game->directionKeyHoldMem[0]) {
-        game->pPlayer.positionRect.y = (game->pPlayer.positionRect.y - 30) * (game->pPlayer.positionRect.y > 60)
-                                        + (30 * (game->pPlayer.positionRect.y <= 60));
+        game->pPlayer.positionRect.y = (game->pPlayer.positionRect.y - 10) * (game->pPlayer.positionRect.y > 40)
+                                        + (10 * (game->pPlayer.positionRect.y <= 40));
         game->pPlayer.sheetLoopIndex = ((game->pPlayer.sheetLoopIndex + 1) % 3) + 6;
-    } else if (game->directionKeyHoldMem[1]) {
-        game->pPlayer.positionRect.y = (game->pPlayer.positionRect.y + 30) * ((game->pPlayer.positionRect.y) < 420)
-                                        + (420 * (game->pPlayer.positionRect.y >= 420));
+    } if (game->directionKeyHoldMem[1]) {
+        game->pPlayer.positionRect.y = (game->pPlayer.positionRect.y + 10) * ((game->pPlayer.positionRect.y) < 440)
+                                        + (440 * (game->pPlayer.positionRect.y >= 440));
         game->pPlayer.sheetLoopIndex = ((game->pPlayer.sheetLoopIndex + 1) % 3) + 9;
-    } else if (game->directionKeyHoldMem[2]) {
-        game->pPlayer.positionRect.x = (game->pPlayer.positionRect.x - 30) * (game->pPlayer.positionRect.x > 60)
-                                        + (30 * (game->pPlayer.positionRect.x <= 60));
+    } if (game->directionKeyHoldMem[2]) {
+        game->pPlayer.positionRect.x = (game->pPlayer.positionRect.x - 10) * (game->pPlayer.positionRect.x > 40)
+                                        + (10 * (game->pPlayer.positionRect.x <= 40));
         game->pPlayer.sheetLoopIndex = ((game->pPlayer.sheetLoopIndex + 1) % 3) + 3;
-    } else if (game->directionKeyHoldMem[3]) {
-        game->pPlayer.positionRect.x = (game->pPlayer.positionRect.x + 30) * ((game->pPlayer.positionRect.x) < 570)
-                                        + (570 * (game->pPlayer.positionRect.x >= 570));
+    } if (game->directionKeyHoldMem[3]) {
+        game->pPlayer.positionRect.x = (game->pPlayer.positionRect.x + 10) * ((game->pPlayer.positionRect.x) < 590)
+                                        + (590 * (game->pPlayer.positionRect.x >= 590));
         game->pPlayer.sheetLoopIndex = ((game->pPlayer.sheetLoopIndex + 1) % 3);
     }
     /*WALK_LOOP_TICK = (WALK_LOOP_TICK + 1) % 12;*/
