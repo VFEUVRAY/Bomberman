@@ -194,6 +194,10 @@ int     game_event(game_t *game)
                     game->bombKeyHoldCheck = 1;
                     return (0);
                     break;
+                case SDLK_d :
+                    debug_display_player_coords(&game->pPlayer);
+                    return (0);
+                    break;
                 default :
                     my_putCharArray((char const *[]){"Key not recognized: ", SDL_GetKeyName(event.key.keysym.sym) ," \n", NULL}, 2);
                     return (0);
@@ -235,12 +239,12 @@ void    game_movePlayer(game_t *game)
                                         + (10 * (game->pPlayer.positionRect.y <= 40));
         game->pPlayer.sheetLoopIndex = ((game->pPlayer.sheetLoopIndex + 1) % 3) + 6;
     } if (game->directionKeyHoldMem[1]) {
-        game->pPlayer.positionRect.y = (game->pPlayer.positionRect.y + 10) * ((game->pPlayer.positionRect.y) < 440)
-                                        + (440 * (game->pPlayer.positionRect.y >= 440));
+        game->pPlayer.positionRect.y = (game->pPlayer.positionRect.y + 10) * ((game->pPlayer.positionRect.y) < 420)
+                                        + (420 * ((game->pPlayer.positionRect.y + 10) >= 420));
         game->pPlayer.sheetLoopIndex = ((game->pPlayer.sheetLoopIndex + 1) % 3) + 9;
     } if (game->directionKeyHoldMem[2]) {
-        game->pPlayer.positionRect.x = (game->pPlayer.positionRect.x - 10) * (game->pPlayer.positionRect.x > 40)
-                                        + (10 * (game->pPlayer.positionRect.x <= 40));
+        game->pPlayer.positionRect.x = (game->pPlayer.positionRect.x - 10) * (game->pPlayer.positionRect.x > 30)
+                                        + (30 * ((game->pPlayer.positionRect.x - 10) <= 30));
         game->pPlayer.sheetLoopIndex = ((game->pPlayer.sheetLoopIndex + 1) % 3) + 3;
     } if (game->directionKeyHoldMem[3]) {
         game->pPlayer.positionRect.x = (game->pPlayer.positionRect.x + 10) * ((game->pPlayer.positionRect.x) < 590)

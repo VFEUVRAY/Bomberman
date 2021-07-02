@@ -90,12 +90,16 @@ void            add_bomb(bomb_queue_t **queue, SDL_Rect *coords);
 void            tick_bombs(bomb_queue_t **queue);
 void            free_queue(bomb_queue_t **queue);
 
+/* various debug functions (debug.c)*/
+void    debug_display_player_coords(const player_object_t *player);
+
 /*miscellanious functions (misc.c)*/
 int     my_strlen(char const *str);
 void    my_putstr(char const *str);
 void    my_puterr(char const *str);
 void    my_putchar(char const c, char const fd);
 void    my_putCharArray(char const **array, char const fd);
+void    my_putnbr(int nb);
 
 /* globals used to streamline error checking and temporary animation looping */
 int WALK_LOOP_TICK;

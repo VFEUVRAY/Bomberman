@@ -33,6 +33,10 @@ void    my_putchar(char const c, char const fd)
     write(fd, &c, 1);
 }
 
+static void misc_char(char const c)
+{
+    write(1, &c, 1);
+}
 
 /**
  * Convienient func to output string arrays, only use to output on standard output
@@ -51,4 +55,22 @@ void    my_putCharArray(char const **array, char const fd)
         strfuncs[fd-1](array[i]);
         i++;
     }
+}
+
+static void nbr_loop(int nb)
+{
+    if (nb > 10)
+        nbr_loop(nb / 10);
+    misc_char((nb % 10)+ 48);
+}
+
+void my_putnbr(int nb)
+{
+    short neg_adjust = 1;
+    if (nb < 0) {
+        misc_char('-');
+        neg_adjust = -1;
+    }
+    nbr_loop((nb / 10) * neg_adjust);
+    misc_char(((nb % 10) * neg_adjust) + 48);
 }
