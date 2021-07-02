@@ -102,6 +102,4 @@ void    my_putCharArray(char const **array, char const fd);
 void    my_putnbr(int nb);
 
 /* globals used to streamline error checking and temporary animation looping */
-int WALK_LOOP_TICK;
-SDL_Rect RECT_LOPP;
 #endif /* GAME_H */
