@@ -198,6 +198,10 @@ int     game_event(game_t *game)
                     debug_display_player_coords(&game->pPlayer);
                     return (0);
                     break;
+		case SDLK_r :
+		    debug_reset_player_pos(&game->pPlayer);
+		    return (0);
+		    break;
                 default :
                     my_putCharArray((char const *[]){"Key not recognized: ", SDL_GetKeyName(event.key.keysym.sym) ," \n", NULL}, 2);
                     return (0);

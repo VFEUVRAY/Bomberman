@@ -14,3 +14,8 @@ void debug_display_player_coords(const player_object_t *player) {
     my_putnbr(player->positionRect.y);
     my_putstr(")\n");
 }
+
+void debug_reset_player_pos(player_object_t *player) {
+	player->positionRect.x = 30;
+	player->positionRect.y = 30;
+}

@@ -92,6 +92,7 @@ void            free_queue(bomb_queue_t **queue);
 
 /* various debug functions (debug.c)*/
 void    debug_display_player_coords(const player_object_t *player);
+void    debug_reset_player_pos(player_object_t *player);
 
 /*miscellanious functions (misc.c)*/
 int     my_strlen(char const *str);
