@@ -22,6 +22,12 @@ int exit_with_error(const char *str)
     return (84);
 }
 
+typedef struct pack_s {
+    char type;
+    int value;
+    char player;
+} pack_t;
+
 int read_client(int client)
 {
     if (client < 0)
@@ -30,7 +36,12 @@ int read_client(int client)
     int read_size = 0;
     memset(buff, '\0', 128);
     while ((read_size = read(client, buff, 128)) > 0) {
-        printf("Received from Client %d : %s", client, buff);
+        if (read_size == sizeof(pack_t)) {
+            pack_t *pack = (pack_t *)buff;
+            printf("Pack %d ; %d ; %d\n", pack->player, pack->type, pack->value);
+            return (0);
+        } else
+            printf("Received from Client %d : %s", client, buff);
         if (buff[read_size - 1] == '\n') {
             memset(buff, '\0', 128);
             return (0);
