@@ -69,6 +69,8 @@ void reorganize_clients(int **clients, const int size)
     (*clients)[last_connected_index] = -1;
 }
 
+
+
 int main()
 {
     struct sockaddr_in server;
@@ -103,20 +105,23 @@ int main()
         timeout.tv_sec = 1;
         timeout.tv_usec = 0;
         FD_ZERO(&readfs);
-        FD_SET(sock, &readfs);
+		if (current_client < 4)
+        	FD_SET(sock, &readfs);
         for (int i = 0 ; i < 4 ; i++)
             FD_SET(clients[i], &readfs);
         if (current_client > 0)
             select(clients[current_client - 1] + 1, &readfs, NULL, NULL, &timeout);
         else
             select(sock + 1, &readfs, NULL, NULL, &timeout);
-        if (FD_ISSET(sock, &readfs)) {
-            clients[current_client] = accept(sock, (struct sockaddr*)&client_addr, &client_addr_len);
-            if (clients[current_client] < 0)
-                return (exit_with_error("accept()"));
-            printf("Client %d accepted\n", clients[current_client]);
-            current_client++;
-        }
+        if (1){
+			if (FD_ISSET(sock, &readfs)) {
+            	clients[current_client] = accept(sock, (struct sockaddr*)&client_addr, &client_addr_len);
+            	if (clients[current_client] < 0)
+                	return (exit_with_error("accept()"));
+            	printf("Client %d accepted\n", clients[current_client]);
+            	current_client++;
+        	}
+		}
         for (int y = 0 ; y < 4 ; y++) {
             if (FD_ISSET(clients[y], &readfs)) {
                 if (read_client(clients[y]) < 0 && clients[y] > 0) {
@@ -130,10 +135,11 @@ int main()
                     }
                     printf("Current clients: %d ; %d ; %d ; %d\n", clients[0], clients[1], clients[2], clients[3]);
                     current_client--;
+					y--;
                 }
             }
         }
-        printf("Looping\n");
+        printf("Looping with %d clients\n", current_client);
     }
     return (0);
 }
