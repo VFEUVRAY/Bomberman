@@ -33,12 +33,13 @@ int main()
 	game_input_reader->server = &server;
 	game_input_reader->sock = &client;
     while (quit != 1) {
+		printf("looping\n");
         game_draw(game);
         quit = game_event(game);
 		pthread_create(&server_thread, NULL, read_input, game_input_reader);
+        SDL_Delay(16);
 		pthread_join(server_thread, NULL);
         game_movePlayer(game);
-        SDL_Delay(16);
     }
     game_destroy(game);
     return (0);

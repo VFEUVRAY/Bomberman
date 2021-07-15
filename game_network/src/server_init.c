@@ -26,11 +26,19 @@ struct sockaddr_in init_server(int *sock)
 
 void *read_input(void *vargs)
 {
+	struct timeval timeout;
 	serv_game_t *info = (serv_game_t *)vargs;
 	int read_size = 0;
 	int input = -1;
 	printf("preparing to receive input\n");
-	while ((read_size = recv(*info->sock, &input, sizeof(int), 0)) > 0) {
+	FD_ZERO(&info->read_fs);
+	FD_SET(*info->sock, &info->read_fs);
+	timeout.tv_sec = 0;
+	timeout.tv_usec = 16000;
+	select(*info->sock + 1, &info->read_fs, NULL, NULL, &timeout);
+	//while ((read_size = recv(*info->sock, &input, sizeof(int), 0)) > 0) {
+	if (FD_ISSET(*info->sock, &info->read_fs)){
+		read_size = recv(*info->sock, &input, sizeof(int), 0);
 		if (read_size > 0) {
 			printf("input received %d \n", input);
 			info->game->directionKeyHoldMem[input] = 1;

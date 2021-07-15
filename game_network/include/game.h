@@ -85,6 +85,7 @@ typedef struct serv_game_s {
 	game_t				*game;
 	struct sockaddr_in	*server;
 	int					*sock;
+	fd_set				read_fs;
 } serv_game_t;
 
 /*game related (game.c)*/
