@@ -24,6 +24,22 @@ struct sockaddr_in init_server(int *sock)
 	return (server);
 }
 
+int attribute_player(int *clients)
+{
+	int i = 0;
+	if (!clients) {
+		my_puterr("attribute player: Major error, exiting\n");
+		return (-1);
+	}
+	while (i < 4) {
+		if (clients[i] < 0)
+			return (i);
+		++i;
+	}
+	my_puterr("attribute player: Max player number reached\n");
+	return (84);
+}
+
 void *read_input(void *vargs)
 {
 	struct timeval timeout;
@@ -41,12 +57,16 @@ void *read_input(void *vargs)
 		read_size = recv(*info->sock, &input, sizeof(int), 0);
 		if (read_size > 0) {
 			printf("input received %d \n", input);
-			info->game->directionKeyHoldMem[input] = 1;
-			for (int i = 0 ; i < 4 ; i++) {
-				if (i != input)
-					info->game->directionKeyHoldMem[i] = 0;
+			if (input >= 0 && input <= 3) {
+				info->game->directionKeyHoldMem[input] = 1;
+				for (int i = 0 ; i < 4 ; i++) {
+					if (i != input)
+						info->game->directionKeyHoldMem[i] = 0;
+				}
+			} else if (input == 4) {
+				add_bomb(&info->game->pBombs, &info->game->pPlayer.positionRect);
 			}
-			return (0);
+			return (NULL);
 		}
 	}
 	return (NULL);

@@ -77,6 +77,8 @@ typedef struct game_s {
     bomb_queue_t    *pBombs;
     bool_t          directionKeyHoldMem[4];
     bool_t          bombKeyHoldCheck;
+
+	void			*online_component; /*Cast into appropriate structure when using in functions */
 } game_t;
 
 /* temporary structure with server and game info */
@@ -87,6 +89,21 @@ typedef struct serv_game_s {
 	int					*sock;
 	fd_set				read_fs;
 } serv_game_t;
+
+/* server type structure */
+
+typedef struct game_server_s {
+	struct sockaddr_in	server;
+	int					sock;
+	int					*clients;
+} game_server_t;
+
+/* client type structure */
+
+typedef struct game_client_s {
+	struct sockaddr_in	server_access;
+	int					server_socket;
+} game_client_t;
 
 /*game related (game.c)*/
 game_t  *game_init();
