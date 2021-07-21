@@ -23,6 +23,7 @@ int main()
 
 	if (connect(sock, (struct sockaddr*)&server_access, sizeof(server_access)) < 0) {
 		perror("connect()");
+		printf("Server was probably not found\n");
 		return (84);
 	}
 	memset(buff, '\0', 128);

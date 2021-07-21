@@ -40,6 +40,73 @@ int attribute_player(int *clients)
 	return (84);
 }
 
+/* THIS FUNCTION IS MEANT FOR MULTITHREADING PURPOSES
+	vargs contains game_t variable
+	game->online_component is ALSO a void * pointer and needs casting to appropriate structure
+*/
+
+void *client_reading_loop(void *vargs)
+{
+	game_t *game = (game_t *)vargs;
+	game_server_t server = *(game_server_t *)game->online_component;
+	struct sockaddr_in client_addr;
+	socklen_t client_addr_len;
+	fd_set readfs;
+	int i = 0;
+	while (1) {
+		set_fds(&server, &readfs);
+		if (server.current_client > 0) {
+			select(server.clients[server.current_client - 1] + 1, &readfs, NULL, NULL, &server.timeout);
+		} else
+			select(server.sock + 1, &readfs, NULL, NULL, &server.timeout);
+		if (FD_ISSET(server.sock, &readfs) && server.current_client < 4) {
+			server.clients[server.current_client] = accept(server.sock, (struct sockaddr*)&client_addr, &client_addr_len);
+			server.current_client++;
+			my_putstr("Client accepted\n");
+		}
+		for (; i = 0 ; i < 4 && server.clients[i] > 0) {
+			if (FD_ISSET(server.clients[i], &readfs))
+				read_client(game, server.clients);
+		}
+	}
+}
+
+void set_fds(game_server_t *server, fd_set *readfs)
+{
+	int i = 0;
+	FD_ZERO(readfs);
+	FD_SET(server->sock, readfs);
+	while (i < 4 && server->clients[i] >= 0)
+		FD_SET(server->clients[i], readfs);
+}
+
+/* Accept client and send to client which player they are */
+
+int accept_client(game_t *game, int *clients, int sock)
+{
+	int client_player_placement = -1;
+	int i = 0;
+	struct sockaddr_in client_addr;
+	socklen_t client_addr_len;
+	while (i < 4 && clients[i] > 0)
+		i = i + 1;
+	if (i == 4)
+		return (-1);
+	clients[i] = accept(sock, (struct sockaddr*)&client_addr, &client_addr_len);
+	if (clients[i] < 0)
+		return (-1);
+	if (write (clients[i], i, 1) < 0)
+		return (-1);
+	return (0);
+}
+
+/* Read incoming inputs from client */
+
+int read_client(game_t *game, int *clients)
+{
+
+}
+
 void *read_input(void *vargs)
 {
 	struct timeval timeout;

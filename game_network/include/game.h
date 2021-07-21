@@ -25,7 +25,9 @@
 Is used for convenient multipurpose output function (misc.c)
 */
 typedef void (*strfunc_t) (char const *);
-/*typedef of char as bool_t, used when we just need small variable for checking purposes*/
+/*	typedef of char as bool_t, used when we just need small variable for checking purposes
+	For consistency purposes please only affect values 1 or 0 to bool_t variables
+*/
 typedef char bool_t;
 
 typedef struct game_object_s {
@@ -43,6 +45,7 @@ typedef struct player_object_s {
     SDL_Rect        positionRect;
     SDL_Rect        spriteRect;
     unsigned int    sheetLoopIndex;
+	bool_t			directionKeyHoldMem[4];
 } player_object_t;
 
 /* bomb object is different because it doesn't need to hold its own texture
@@ -93,9 +96,11 @@ typedef struct serv_game_s {
 /* server type structure */
 
 typedef struct game_server_s {
-	struct sockaddr_in	server;
+	struct sockaddr_in	addr;
 	int					sock;
 	int					*clients;
+	int					current_client;
+	struct timeval		timeout;
 } game_server_t;
 
 /* client type structure */
@@ -127,8 +132,10 @@ void    debug_display_player_coords(const player_object_t *player);
 void    debug_reset_player_pos(player_object_t *player);
 
 /* functions regarding network implementation */
-struct sockaddr_in init_server(int *sock);
-void *read_input(void *vargs);
+struct sockaddr_in	init_server(int *sock);
+void				*client_reading_loop(void *vargs);
+void				set_fds(game_server_t *server, fd_set *readfs);
+void 				*read_input(void *vargs);
 
 /*miscellanious functions (misc.c)*/
 int     my_strlen(char const *str);
