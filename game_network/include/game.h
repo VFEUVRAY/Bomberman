@@ -76,6 +76,9 @@ typedef struct game_s {
     SDL_Texture*    pBombTexture;
     /*game_object_t   pPlayer;*/
     player_object_t pPlayer;
+	player_object_t *pPlayers;
+	int				playerNumber;
+	int				playerType;
     game_object_t   pMap;
     bomb_queue_t    *pBombs;
     bool_t          directionKeyHoldMem[4];
@@ -98,9 +101,10 @@ typedef struct serv_game_s {
 typedef struct game_server_s {
 	struct sockaddr_in	addr;
 	int					sock;
-	int					*clients;
+	int					clients[3];
 	int					current_client;
 	struct timeval		timeout;
+	fd_set				readfs;
 } game_server_t;
 
 /* client type structure */
@@ -116,10 +120,11 @@ void    game_destroy(game_t *game);
 void    game_draw(game_t *game);
 int     game_event(game_t *game);
 void    game_movePlayer(game_t *game);
+void    multi_game_move_player(player_object_t *player);
 
 /*general object related (object_initializer.c)*/
 void    object_init(game_object_t *object, int const x, int const y, int const w, int const h);
-void    player_init(player_object_t *player);
+void    player_init(player_object_t *player, int player_number);
 
 /* bomb queue related (bombs.c)*/
 bomb_queue_t    *pop_bomb(bomb_queue_t *queue);
@@ -131,11 +136,18 @@ void            free_queue(bomb_queue_t **queue);
 void    debug_display_player_coords(const player_object_t *player);
 void    debug_reset_player_pos(player_object_t *player);
 
-/* functions regarding network implementation */
+/* functions regarding server side network implementation (server_init.c) */
 struct sockaddr_in	init_server(int *sock);
 void				*client_reading_loop(void *vargs);
-void				set_fds(game_server_t *server, fd_set *readfs);
+void				set_fds(game_server_t *server);
 void 				*read_input(void *vargs);
+
+/* functions regarding client side network implementation (client_init.c) */
+
+struct sockaddr_in	init_client(int *sock);
+void				*server_communicating_loop(void *vargs);
+int					read_from_server(int sock, int **buffer);
+int					send_to_server(int sock, int **directions);
 
 /*miscellanious functions (misc.c)*/
 int     my_strlen(char const *str);

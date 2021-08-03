@@ -31,7 +31,8 @@ game_t  *game_init()
     game->pPlayer.oTexture = NULL;
     game->pBombTexture = NULL;
     game->pBombs = NULL;
-    player_init(&game->pPlayer);
+    player_init(&game->pPlayer, 1);
+	game->pPlayers = malloc(sizeof(game_object_t) * 4);
     object_init(&game->pMap, 0, 0, game->screenSize.x, game->screenSize.y);
     game->directionKeyHoldMem[0] = game->directionKeyHoldMem[1] = game->directionKeyHoldMem[2] = game->directionKeyHoldMem[3] = 0;
     game->bombKeyHoldCheck = 0;
@@ -256,4 +257,26 @@ void    game_movePlayer(game_t *game)
         game->pPlayer.sheetLoopIndex = ((game->pPlayer.sheetLoopIndex + 1) % 3);
     }
     game->pPlayer.spriteRect.x = game->pPlayer.sheetLoopIndex * 30;
+}
+
+void    multi_game_move_player(player_object_t *player)
+{
+    if (player->directionKeyHoldMem[0]) {
+        player->positionRect.y = (player->positionRect.y - 10) * (player->positionRect.y > 40)
+                                        + (10 * (player->positionRect.y <= 40));
+        player->sheetLoopIndex = ((player->sheetLoopIndex + 1) % 3) + 6;
+    } if (player->directionKeyHoldMem[1]) {
+        player->positionRect.y = (player->positionRect.y + 10) * ((player->positionRect.y) <= 420)
+                                        + (420 * ((player->positionRect.y + 10) > 420));
+        player->sheetLoopIndex = ((player->sheetLoopIndex + 1) % 3) + 9;
+    } if (player->directionKeyHoldMem[2]) {
+        player->positionRect.x = (player->positionRect.x - 10) * (player->positionRect.x > 30)
+                                        + (30 * ((player->positionRect.x - 10) <= 30));
+        player->sheetLoopIndex = ((player->sheetLoopIndex + 1) % 3) + 3;
+    } if (player->directionKeyHoldMem[3]) {
+        player->positionRect.x = (player->positionRect.x + 10) * ((player->positionRect.x) < 590)
+                                        + (590 * (player->positionRect.x >= 590));
+        player->sheetLoopIndex = ((player->sheetLoopIndex + 1) % 3);
+    }
+    player->spriteRect.x = player->sheetLoopIndex * 30;
 }
