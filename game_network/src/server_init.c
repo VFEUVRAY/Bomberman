@@ -69,7 +69,7 @@ void *client_reading_loop(void *vargs)
 			server.current_client++;
 			my_putstr("Client accepted\n");
 		}
-		for (; i = 0 ; i < BOMBERMAN_MAX_CLIENTS && server.clients[i] > 0) {
+		for (i = 0 ; i < BOMBERMAN_MAX_CLIENTS && server.clients[i] > 0 ; i++) {
 			if (FD_ISSET(server.clients[i], &readfs))
 				read_client(game, server.clients, &buffer, &readfs);
 		}
@@ -89,9 +89,9 @@ void set_fds(game_server_t *server)
 
 /* Accept client and send to client which player they are */
 
-int accept_client(game_t *game, int *clients, int sock)
+int accept_client(int *clients, int sock)
 {
-	int client_player_placement = -1;
+	//int client_player_placement = -1;
 	int i = 0;
 	struct sockaddr_in client_addr;
 	socklen_t client_addr_len;
@@ -102,14 +102,14 @@ int accept_client(game_t *game, int *clients, int sock)
 	clients[i] = accept(sock, (struct sockaddr*)&client_addr, &client_addr_len);
 	if (clients[i] < 0)
 		return (-1);
-	if (write (clients[i], i, 1) < 0)
+	if (write (clients[i], &i, 4) < 0)
 		return (-1);
 	return (0);
 }
 
 /* Read incoming inputs from client */
 
-int read_client(game_t *game, int *clients, int **buffer, fd_set *readfs)
+int read_client(game_t *game, int *clients, int (*buffer)[8], fd_set *readfs)
 {
 	int i = 0;
 	int read_size;
@@ -143,6 +143,7 @@ int send_to_clients(int *clients, int *buffer)
 			printf("Clients %d disconnected", clients[i]);
 		++i;
 	}
+	return (1);
 }
 
 void *read_input(void *vargs)

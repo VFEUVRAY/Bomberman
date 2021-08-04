@@ -142,12 +142,14 @@ void				*client_reading_loop(void *vargs);
 void				set_fds(game_server_t *server);
 void 				*read_input(void *vargs);
 
+
 /* functions regarding client side network implementation (client_init.c) */
 
 struct sockaddr_in	init_client(int *sock);
 void				*server_communicating_loop(void *vargs);
 int					read_from_server(int sock, int **buffer);
 int					send_to_server(int sock, int **directions);
+int                 read_client(game_t *game, int *clients, int (*buffer)[8], fd_set *readfs);
 
 /*miscellanious functions (misc.c)*/
 int     my_strlen(char const *str);
