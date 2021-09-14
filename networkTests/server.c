@@ -69,8 +69,6 @@ void reorganize_clients(int **clients, const int size)
     (*clients)[last_connected_index] = -1;
 }
 
-
-
 int main()
 {
     struct sockaddr_in server;

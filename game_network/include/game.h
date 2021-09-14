@@ -141,15 +141,15 @@ struct sockaddr_in	init_server(int *sock);
 void				*client_reading_loop(void *vargs);
 void				set_fds(game_server_t *server);
 void 				*read_input(void *vargs);
-
+int                 read_client(game_t *game, int *clients, int (*buffer)[8], fd_set *readfs);
+int                 send_to_clients(int *clients, int *buffer);
 
 /* functions regarding client side network implementation (client_init.c) */
 
 struct sockaddr_in	init_client(int *sock);
 void				*server_communicating_loop(void *vargs);
 int					read_from_server(int sock, int (*buffer)[8]);
-int					send_to_server(int sock, bool_t (*directions)[4]);
-int                 read_client(game_t *game, int *clients, int (*buffer)[8], fd_set *readfs);
+int					send_to_server(int sock, bool_t (*directions)[4], SDL_Rect coords);
 
 /*miscellanious functions (misc.c)*/
 int     my_strlen(char const *str);
