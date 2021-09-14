@@ -10,6 +10,7 @@
 struct sockaddr_in init_client(int *sock)
 {
 	struct sockaddr_in server_access;
+	int player_number = -1;
 	server_access.sin_addr.s_addr = inet_addr("127.0.1.1");
 	server_access.sin_family = AF_INET;
 	server_access.sin_port = htons(8001);
@@ -21,6 +22,9 @@ struct sockaddr_in init_client(int *sock)
 	}
 	if (server_access.sin_port)
 		my_putstr("connected to server\n");
+	read(*sock, &player_number, sizeof(int));
+	printf("player_number %d\n", player_number);
+	//game->playerNumber = player_number;
 	return (server_access);
 }
 

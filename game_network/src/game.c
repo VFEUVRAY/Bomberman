@@ -31,8 +31,10 @@ game_t  *game_init()
     game->pPlayer.oTexture = NULL;
     game->pBombTexture = NULL;
     game->pBombs = NULL;
-    player_init(&game->pPlayer, 1);
-	game->pPlayers = malloc(sizeof(game_object_t) * 4);
+    
+	game->pPlayers = malloc(sizeof(player_object_t) * 4);
+    for (int i = 0 ; i < 4 ; i++)
+        game->pPlayers[i].alive = 0;
     object_init(&game->pMap, 0, 0, game->screenSize.x, game->screenSize.y);
     game->directionKeyHoldMem[0] = game->directionKeyHoldMem[1] = game->directionKeyHoldMem[2] = game->directionKeyHoldMem[3] = 0;
     game->bombKeyHoldCheck = 0;
@@ -68,8 +70,13 @@ game_t  *game_init()
         return (NULL);
     }
 
+
+    if (!player_init(&game->pPlayer, 1, game->pRenderer))
+        return (NULL);
+
     /*loading a texture*/
     /*IMG_Init(IMG_INIT_PNG);*/
+    /*
     SDL_Surface* surfacePlayer = IMG_Load("./assets/PlayerDummySheet.png");
     if (!surfacePlayer) {
         my_putCharArray((char const *[]){"Could not open Player Image:", IMG_GetError(), "\n", NULL}, 2);
@@ -83,7 +90,8 @@ game_t  *game_init()
         return (NULL);
     }
     SDL_FreeSurface(surfacePlayer);
-    surfacePlayer = IMG_Load("./assets/bombermap.jpg");
+    */
+    SDL_Surface *surfacePlayer = IMG_Load("./assets/bombermap.jpg");
     if (!surfacePlayer) {
         my_putCharArray((char const *[]){"Could not open Map Image:", IMG_GetError(), "\n", NULL}, 2);
         game_destroy(game);
@@ -133,6 +141,7 @@ void    game_destroy(game_t *game)
 
 void    game_draw(game_t *game)
 {
+    int player_index = 0;
     bomb_queue_t *currentBomb = game->pBombs;
 
     /*cleanup screen by filling with black*/
@@ -146,6 +155,16 @@ void    game_draw(game_t *game)
         currentBomb = currentBomb->next;
     }
     SDL_RenderCopy(game->pRenderer, game->pPlayer.oTexture, &game->pPlayer.spriteRect, &game->pPlayer.positionRect);
+
+    while (player_index < 4) {
+        if (game->pPlayers[player_index].alive) {
+    	    printf("player is alive\n");
+            SDL_RenderCopy(game->pRenderer, game->pPlayers[player_index].oTexture,
+                                            &game->pPlayers[player_index].spriteRect,
+                                            &game->pPlayers[player_index].positionRect);
+        }
+        ++player_index;
+    }
 
     /*preset render*/
     SDL_RenderPresent(game->pRenderer);

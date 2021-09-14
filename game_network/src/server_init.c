@@ -60,8 +60,8 @@ void *client_reading_loop(void *vargs)
 	game_t *game = (game_t *)vargs;
 	game_server_t *server = (game_server_t *)game->online_component;
 	int buffer[8];
-	struct sockaddr_in client_addr;
-	socklen_t client_addr_len;
+	//struct sockaddr_in client_addr;
+	//socklen_t client_addr_len;
 	//fd_set readfs;
 	int i = 0;
 	//while (1) {
@@ -83,7 +83,11 @@ void *client_reading_loop(void *vargs)
 		//printf("get accepted for fuck's sake\n");
 		if (FD_ISSET(server->sock, &server->readfs) && server->current_client < 4) {
 			printf("clients incoming\n");
-			server->clients[server->current_client] = accept(server->sock, (struct sockaddr*)&client_addr, &client_addr_len);
+			//server->clients[server->current_client] = accept(server->sock, (struct sockaddr*)&client_addr, &client_addr_len);
+			//server->current_client++;
+			if (accept_client(server->clients, server->sock) < 0)
+				my_puterr("Client accept no worky\n");
+			add_player(game);
 			server->current_client++;
 			my_putstr("Client accepted\n");
 		}
@@ -125,13 +129,17 @@ int accept_client(int *clients, int sock)
 	socklen_t client_addr_len;
 	while (i < 4 && clients[i] > 0)
 		i = i + 1;
-	if (i == 4)
+	if (i >= 4)
 		return (-1);
+	printf("index is good\n");
 	clients[i] = accept(sock, (struct sockaddr*)&client_addr, &client_addr_len);
 	if (clients[i] < 0)
 		return (-1);
-	if (write (clients[i], &i, 4) < 0)
+	printf("client is accepted is good\n");
+	++i;
+	if (write(clients[i], &i, sizeof(int)) < 0)
 		return (-1);
+	printf("write is good\n");
 	return (0);
 }
 
@@ -167,7 +175,7 @@ int read_client(game_t *game, int *clients, int (*buffer)[8], fd_set *readfs)
 int send_to_clients(int *clients, int *buffer)
 {
 	int i = 0;
-	printf("data being sent %d %d %d %d\n", buffer[0], buffer[1], buffer[2], buffer[3]);
+	//printf("data being sent %d %d %d %d\n", buffer[0], buffer[1], buffer[2], buffer[3]);
 	while (i < BOMBERMAN_MAX_CLIENTS && clients[i] > 0) {
 		if (write(clients[i], buffer, sizeof(int) * 8) < 0)
 			printf("Clients %d disconnected", clients[i]);
@@ -175,6 +183,28 @@ int send_to_clients(int *clients, int *buffer)
 	}
 	return (1);
 }
+
+
+int add_player(game_t *game)
+{
+	int i = 0;
+	while (game->pPlayers[i].alive != 0)
+		++i;
+	if (i >= 4)
+		return (-1);
+	printf("creating player\n");
+	if (!player_init(&game->pPlayers[i], 2, game->pRenderer)){
+		printf("init failed\n");
+		return (-1);
+	}
+	if (!game->pPlayers[i].alive){
+		printf("dead?\n");
+		return (-1);
+	}
+	printf("alive?\n");
+	return (1);
+}
+
 
 void *read_input(void *vargs)
 {

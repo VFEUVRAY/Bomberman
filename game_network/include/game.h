@@ -46,6 +46,7 @@ typedef struct player_object_s {
     SDL_Rect        spriteRect;
     unsigned int    sheetLoopIndex;
 	bool_t			directionKeyHoldMem[4];
+    bool_t          alive;
 } player_object_t;
 
 /* bomb object is different because it doesn't need to hold its own texture
@@ -124,7 +125,7 @@ void    multi_game_move_player(player_object_t *player);
 
 /*general object related (object_initializer.c)*/
 void    object_init(game_object_t *object, int const x, int const y, int const w, int const h);
-void    player_init(player_object_t *player, int player_number);
+int     player_init(player_object_t *player, int player_number, SDL_Renderer *renderer);
 
 /* bomb queue related (bombs.c)*/
 bomb_queue_t    *pop_bomb(bomb_queue_t *queue);
@@ -139,10 +140,12 @@ void    debug_reset_player_pos(player_object_t *player);
 /* functions regarding server side network implementation (server_init.c) */
 struct sockaddr_in	init_server(int *sock);
 void				*client_reading_loop(void *vargs);
+int                 accept_client(int *clients, int sock);
 void				set_fds(game_server_t *server);
 void 				*read_input(void *vargs);
 int                 read_client(game_t *game, int *clients, int (*buffer)[8], fd_set *readfs);
 int                 send_to_clients(int *clients, int *buffer);
+int                 add_player(game_t *game);
 
 /* functions regarding client side network implementation (client_init.c) */
 
