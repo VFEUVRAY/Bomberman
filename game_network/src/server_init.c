@@ -1,5 +1,11 @@
 #include "../include/game.h"
-#include "../include/globals.h"
+
+#ifndef BOMBERMAN_GLOBALS_H
+# define BOMBERMAN_GLOBALS_H 1
+
+# include "../include/globals.h"
+
+#endif /* BOMBERMAN_GLOBALS_H */
 
 int const BOMBERMAN_MAX_CLIENTS = 3;
 int const BOMBERMAN_KEY_ARRAY_LEN = 5;
@@ -52,28 +58,35 @@ int attribute_player(int *clients)
 void *client_reading_loop(void *vargs)
 {
 	game_t *game = (game_t *)vargs;
-	game_server_t server = *(game_server_t *)game->online_component;
+	game_server_t *server = (game_server_t *)game->online_component;
 	int buffer[8];
 	struct sockaddr_in client_addr;
 	socklen_t client_addr_len;
 	fd_set readfs;
 	int i = 0;
-	while (1) {
-		set_fds(&server);
-		if (server.current_client > 0) {
-			select(server.clients[server.current_client - 1] + 1, &readfs, NULL, NULL, &server.timeout);
-		} else
-			select(server.sock + 1, &readfs, NULL, NULL, &server.timeout);
-		if (FD_ISSET(server.sock, &readfs) && server.current_client < 4) {
-			server.clients[server.current_client] = accept(server.sock, (struct sockaddr*)&client_addr, &client_addr_len);
-			server.current_client++;
+	//while (1) {
+		//printf("waiting %d \n", server->current_client);
+		set_fds(server);
+		if (server->current_client > 0) {
+			select(server->clients[server->current_client - 1] + 1, &readfs, NULL, NULL, &server->timeout);
+		} else {
+			select(server->sock + 1, &readfs, NULL, NULL, &server->timeout);
+			//printf("this select\n");
+		}
+		//server->clients[0] = accept(server->sock, (struct sockaddr*) &client_addr, &client_addr_len);
+		//printf("get accepted for fuck's sake\n");
+		if (FD_ISSET(server->sock, &readfs) && server->current_client < 4) {
+			printf("clients incoming\n");
+			server->clients[server->current_client] = accept(server->sock, (struct sockaddr*)&client_addr, &client_addr_len);
+			server->current_client++;
 			my_putstr("Client accepted\n");
 		}
-		for (i = 0 ; i < BOMBERMAN_MAX_CLIENTS && server.clients[i] > 0 ; i++) {
-			if (FD_ISSET(server.clients[i], &readfs))
-				read_client(game, server.clients, &buffer, &readfs);
+		for (i = 0 ; i < BOMBERMAN_MAX_CLIENTS && server->clients[i] > 0 ; i++) {
+			if (FD_ISSET(server->clients[i], &readfs))
+				read_client(game, server->clients, &buffer, &readfs);
 		}
-	}
+	//}
+	return NULL;
 }
 
 /* set file descriptors for reading in selects */
@@ -82,9 +95,12 @@ void set_fds(game_server_t *server)
 {
 	int i = 0;
 	FD_ZERO(&server->readfs);
-	FD_SET(server->sock, &server->readfs);
-	while (i < BOMBERMAN_MAX_CLIENTS && server->clients[i] >= 0)
-		FD_SET(server->clients[i], &server->readfs);
+	if (server->current_client == 0)
+		FD_SET(server->sock, &server->readfs);
+	else {
+		while (i < BOMBERMAN_MAX_CLIENTS && server->clients[i] >= 0)
+			FD_SET(server->clients[i], &server->readfs);
+	}
 }
 
 /* Accept client and send to client which player they are */

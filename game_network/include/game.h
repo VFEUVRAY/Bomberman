@@ -147,8 +147,8 @@ void 				*read_input(void *vargs);
 
 struct sockaddr_in	init_client(int *sock);
 void				*server_communicating_loop(void *vargs);
-int					read_from_server(int sock, int **buffer);
-int					send_to_server(int sock, int **directions);
+int					read_from_server(int sock, int (*buffer)[8]);
+int					send_to_server(int sock, bool_t (*directions)[4]);
 int                 read_client(game_t *game, int *clients, int (*buffer)[8], fd_set *readfs);
 
 /*miscellanious functions (misc.c)*/

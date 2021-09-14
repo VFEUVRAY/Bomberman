@@ -37,7 +37,7 @@ game_client_t *make_client_online_component()
 	return (serv_access);
 }
 
-int prepare_systems(struct sockaddr_in *server, game_t **game, int *sock, int player_type)
+int prepare_systems(game_t **game, int player_type)
 {
 	*game = game_init();
 	if (!game) {
@@ -69,15 +69,17 @@ int main_game_loop(int player_type)
 	int sock = -1;
 	struct sockaddr_in server = init_server(&sock);
 	*/
-	struct sockaddr_in client_addr;
-	socklen_t client_addr_len;
-	serv_game_t *game_input_reader = malloc(sizeof(serv_game_t));
+	//serv_game_t *game_input_reader = malloc(sizeof(serv_game_t));
+
 	pthread_t server_thread;
-	struct sockaddr_in server;
+
+	//struct sockaddr_in server;
 	game_t *game = NULL;
-	int sock = -1;
-	if (prepare_systems(&server, &game, &sock, player_type) > 0)
+	//int sock = -1;
+
+	if (prepare_systems(&game, player_type) > 0)
 		return (84);
+
 	/*
 	if (server.sin_port == 0) {
 		my_puterr("Server initialization failed, exiting\n");
@@ -103,10 +105,13 @@ int main_game_loop(int player_type)
 */
 	int quit = 0;
     while (quit != 1) {
-		printf("looping\n");
+		//printf("looping\n");
         game_draw(game);
         quit = game_event(game);
-		pthread_create(&server_thread, NULL, client_reading_loop, game);
+		if (player_type) {
+			pthread_create(&server_thread, NULL, server_communicating_loop, game);
+		} else
+			pthread_create(&server_thread, NULL, client_reading_loop, game);
         SDL_Delay(16);
 		pthread_join(server_thread, NULL);
         game_movePlayer(game);

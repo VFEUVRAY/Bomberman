@@ -1,7 +1,13 @@
 #include "../include/game.h"
-#include "../include/globals.h"
 
-struct sockaddr_in client_init(int *sock)
+#ifndef BOMBERMAN_GLOBALS_H
+# define BOMBERMAN_GLOBALS_H 1
+
+# include "../include/globals.h"
+
+#endif /* BOMBERMAN_GLOBALS_H */
+
+struct sockaddr_in init_client(int *sock)
 {
 	struct sockaddr_in server_access;
 	server_access.sin_addr.s_addr = inet_addr("127.0.1.1");
@@ -13,6 +19,8 @@ struct sockaddr_in client_init(int *sock)
 		my_puterr("Failed to connect to server (was probably not found)\n");
 		server_access.sin_port = 0;
 	}
+	if (server_access.sin_port)
+		my_putstr("connected to server\n");
 	return (server_access);
 }
 
@@ -20,14 +28,18 @@ void *server_communicating_loop(void *vargs)
 {
 	game_t *game = (game_t *) vargs;
 	game_client_t *serv = (game_client_t*)game->online_component;
-	int read_size = 0;
+	//int read_size = 0;
 	int buffer[8];
 
+	printf("client here\n");
 	read_from_server(serv->server_socket, &buffer);
+	printf("client here\n");
 	send_to_server(serv->server_socket, &game->directionKeyHoldMem);
+	printf("client here\n");
+	return (NULL);
 }
 
-int read_from_server(int socket, int **buffer)
+int read_from_server(int socket, int (*buffer)[8])
 {
 	int read_size = 0;
 	read_size = read(socket, *buffer, 8);
@@ -39,7 +51,7 @@ int read_from_server(int socket, int **buffer)
 	return (0);
 }
 
-int send_to_server(int sock, int **directions)
+int send_to_server(int sock, bool_t (*directions)[4])
 {
 	int write_size = 0;
 	write_size = write(sock, *directions, 4);
