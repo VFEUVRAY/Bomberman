@@ -35,7 +35,7 @@ void *server_communicating_loop(void *vargs)
 	//int read_size = 0;
 	int buffer[8];
 
-	if (read_from_server(serv->server_socket, &buffer) >= 0) {
+	if (read_from_server(serv->server_socket, buffer) >= 0) {
 		game->pPlayer.positionRect.x = buffer[0];
 		game->pPlayer.positionRect.y = buffer[1];
 	}
@@ -43,15 +43,18 @@ void *server_communicating_loop(void *vargs)
 	return (NULL);
 }
 
-int read_from_server(int socket, int (*buffer)[8])
+int read_from_server(int socket, int *buffer)
 {
 	int read_size = 0;
-	read_size = read(socket, *buffer, sizeof(int) * 8);
-	if (read_size <  0) {
+	read_size = read(socket, buffer, sizeof(int) * 8);
+	printf("read %d\n", read_size);
+	if (read_size < 0) {
 		my_puterr("Major error while reading from server, exiting\n");
 		return (-1);
 	}
-	printf("%d %d %d %d\n", (*buffer)[0], (*buffer)[1], (*buffer)[2], (*buffer)[3]);
+	//buffer--;
+	printf("data received 1 %d %d %d %d\n", buffer[0], buffer[1], buffer[2], buffer[3]);
+	printf("data received 2 %d %d %d %d\n", buffer[4], buffer[5], buffer[6], buffer[7]);
 	return (0);
 }
 

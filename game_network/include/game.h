@@ -143,15 +143,15 @@ void				*client_reading_loop(void *vargs);
 int                 accept_client(int *clients, int sock);
 void				set_fds(game_server_t *server);
 void 				*read_input(void *vargs);
-int                 read_client(game_t *game, int *clients, int (*buffer)[8], fd_set *readfs);
-int                 send_to_clients(int *clients, int *buffer);
+int                 read_client(int *clients, int (*buffer)[8], fd_set *readfs);
+int                 send_to_clients(int *clients, int *buffer, SDL_Rect *coords);
 int                 add_player(game_t *game);
 
 /* functions regarding client side network implementation (client_init.c) */
 
 struct sockaddr_in	init_client(int *sock);
 void				*server_communicating_loop(void *vargs);
-int					read_from_server(int sock, int (*buffer)[8]);
+int					read_from_server(int sock, int *buffer);
 int					send_to_server(int sock, bool_t (*directions)[4], SDL_Rect coords);
 
 /*miscellanious functions (misc.c)*/

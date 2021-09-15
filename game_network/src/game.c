@@ -158,7 +158,7 @@ void    game_draw(game_t *game)
 
     while (player_index < 4) {
         if (game->pPlayers[player_index].alive) {
-    	    printf("player is alive\n");
+    	    //printf("player is alive\n");
             SDL_RenderCopy(game->pRenderer, game->pPlayers[player_index].oTexture,
                                             &game->pPlayers[player_index].spriteRect,
                                             &game->pPlayers[player_index].positionRect);

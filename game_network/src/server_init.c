@@ -87,15 +87,15 @@ void *client_reading_loop(void *vargs)
 			//server->current_client++;
 			if (accept_client(server->clients, server->sock) < 0)
 				my_puterr("Client accept no worky\n");
-			add_player(game);
+			//add_player(game);
 			server->current_client++;
 			my_putstr("Client accepted\n");
 		}
 		for (i = 0 ; i < BOMBERMAN_MAX_CLIENTS && server->clients[i] > 0 ; i++) {
 			if (FD_ISSET(server->clients[i], &server->readfs))
-				read_client(game, server->clients, &buffer, &server->readfs);
+				read_client(server->clients, &buffer, &server->readfs);
 		}
-		send_to_clients(server->clients, buffer);
+		send_to_clients(server->clients, buffer, &game->pPlayer.positionRect);
 	//}
 	return NULL;
 }
@@ -145,7 +145,7 @@ int accept_client(int *clients, int sock)
 
 /* Read incoming inputs from client */
 
-int read_client(game_t *game, int *clients, int (*buffer)[8], fd_set *readfs)
+int read_client(int *clients, int (*buffer)[8], fd_set *readfs)
 {
 	int i = 0;
 	int read_size;
@@ -165,20 +165,24 @@ int read_client(game_t *game, int *clients, int (*buffer)[8], fd_set *readfs)
 		++i;
 		offset += 2;
 	}
-	(*buffer)[0] = game->pPlayer.positionRect.x;
-	(*buffer)[1] = game->pPlayer.positionRect.y;
 	return (1);
 }
 
 /* send total new positionning information to clients, animation work is up to them */
 
-int send_to_clients(int *clients, int *buffer)
+int send_to_clients(int *clients, int *buffer, SDL_Rect *coords)
 {
 	int i = 0;
-	//printf("data being sent %d %d %d %d\n", buffer[0], buffer[1], buffer[2], buffer[3]);
+	int w_s = 0;
+	
+	buffer[0] = coords->x;
+	buffer[1] = coords->y;
+	printf("data being sent %d %d %d %d\n", buffer[0], buffer[1], buffer[2], buffer[3]);
 	while (i < BOMBERMAN_MAX_CLIENTS && clients[i] > 0) {
-		if (write(clients[i], buffer, sizeof(int) * 8) < 0)
+		w_s = write(clients[i], buffer, sizeof(int) * 8);
+		if (w_s < 0)
 			printf("Clients %d disconnected", clients[i]);
+		printf(" write %d", w_s);
 		++i;
 	}
 	return (1);
