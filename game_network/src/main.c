@@ -135,5 +135,6 @@ int main(int argc, char **argv)
 		my_puterr("Exiting with error\n");
 		return (84);
 	}
+	my_putstr("Closing game\n");
 	return (0);
 }

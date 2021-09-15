@@ -63,7 +63,7 @@ void *client_reading_loop(void *vargs)
 	//struct sockaddr_in client_addr;
 	//socklen_t client_addr_len;
 	//fd_set readfs;
-	int i = 0;
+	//int i = 0;
 	//while (1) {
 		//printf("waiting %d \n", server->current_client);
 		set_fds(server);
@@ -82,7 +82,7 @@ void *client_reading_loop(void *vargs)
 		*/
 		//printf("get accepted for fuck's sake\n");
 		if (FD_ISSET(server->sock, &server->readfs) && server->current_client < 4) {
-			printf("clients incoming\n");
+			my_putstr("clients incoming\n");
 			//server->clients[server->current_client] = accept(server->sock, (struct sockaddr*)&client_addr, &client_addr_len);
 			//server->current_client++;
 			if (accept_client(server->clients, server->sock) < 0)
@@ -91,10 +91,14 @@ void *client_reading_loop(void *vargs)
 			server->current_client++;
 			my_putstr("Client accepted\n");
 		}
+		/*
 		for (i = 0 ; i < BOMBERMAN_MAX_CLIENTS && server->clients[i] > 0 ; i++) {
 			if (FD_ISSET(server->clients[i], &server->readfs))
 				read_client(server->clients, &buffer, &server->readfs);
 		}
+		*/
+		read_client(server->clients, &buffer, &server->readfs);
+		server->current_client = max_cli(server->clients);
 		send_to_clients(server->clients, buffer, &game->pPlayer.positionRect);
 	//}
 	return NULL;
@@ -108,8 +112,9 @@ void set_fds(game_server_t *server)
 	FD_ZERO(&server->readfs);
 	server->timeout.tv_sec = 0;
 	server->timeout.tv_usec = 16;
+	FD_SET(server->sock, &server->readfs);
 	if (server->current_client == 0){
-		FD_SET(server->sock, &server->readfs);
+		
 		//printf("no clients yet\n");
 	} else {
 		while (i < BOMBERMAN_MAX_CLIENTS && server->clients[i] >= 0) {
@@ -160,8 +165,8 @@ int read_client(int *clients, int (*buffer)[8], fd_set *readfs)
 			if (read_size < 0)
 				clients[i] = -1;
 			else {
-				(*buffer)[i + offset] = player_buffer[0];
-				(*buffer)[i + offset + 1] = player_buffer[1];
+				(*buffer)[offset] = player_buffer[0];
+				(*buffer)[offset + 1] = player_buffer[1];
 				//printf("received some shit %d %d\n", (*buffer)[i + offset], (*buffer)[i + offset + 1]);
 			}
 		}
@@ -185,7 +190,6 @@ int send_to_clients(int *clients, int *buffer, SDL_Rect *coords)
 		w_s = write(clients[i], buffer, sizeof(int) * 8);
 		if (w_s < 0)
 			printf("Clients %d disconnected", clients[i]);
-		printf(" write %d", w_s);
 		++i;
 	}
 	return (1);
@@ -244,3 +248,32 @@ void *read_input(void *vargs)
 	}
 	return (NULL);
 }
+
+int max_cli(int *clients)
+{
+	int i = 0;
+	int max = -1;
+
+	while (i < BOMBERMAN_MAX_CLIENTS) {
+		if (max < clients[i])
+			max = i;
+		i++;
+	}
+	return (max);
+}
+
+/*
+int reorganize_clients(int *buffer)
+{
+	int i = 0;
+	int y = 0;
+	int len = 3;
+
+	while (i < len) {
+		y = 0;
+		while (y < len) {
+
+		}
+	}
+}
+*/

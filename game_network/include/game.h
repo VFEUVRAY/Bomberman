@@ -105,6 +105,7 @@ typedef struct game_server_s {
 	int					sock;
 	int					clients[3];
 	int					current_client;
+    int                 highest_client_fd;
 	struct timeval		timeout;
 	fd_set				readfs;
 } game_server_t;
@@ -147,6 +148,8 @@ void 				*read_input(void *vargs);
 int                 read_client(int *clients, int (*buffer)[8], fd_set *readfs);
 int                 send_to_clients(int *clients, int *buffer, SDL_Rect *coords);
 int                 add_player(game_t *game);
+
+int                 max_cli(int *clients);
 
 /* functions regarding client side network implementation (client_init.c) */
 
