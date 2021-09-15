@@ -125,21 +125,24 @@ int accept_client(int *clients, int sock)
 {
 	//int client_player_placement = -1;
 	int i = 0;
+	int player_number = -1;
 	struct sockaddr_in client_addr;
 	socklen_t client_addr_len;
 	while (i < 4 && clients[i] > 0)
 		i = i + 1;
 	if (i >= 4)
 		return (-1);
-	printf("index is good\n");
+	my_putstr("index is good\n");
 	clients[i] = accept(sock, (struct sockaddr*)&client_addr, &client_addr_len);
 	if (clients[i] < 0)
 		return (-1);
-	printf("client is accepted is good\n");
-	++i;
-	if (write(clients[i], &i, sizeof(int)) < 0)
+	my_putstr("client is accepted is good\n");
+	player_number = i+1;
+	if (write(clients[i], &player_number, sizeof(int)) < 0){
+		my_puterr("Could not send player number to client\n");
 		return (-1);
-	printf("write is good\n");
+	}
+	my_putstr("write is good\n");
 	return (0);
 }
 
@@ -177,7 +180,7 @@ int send_to_clients(int *clients, int *buffer, SDL_Rect *coords)
 	
 	buffer[0] = coords->x;
 	buffer[1] = coords->y;
-	printf("data being sent %d %d %d %d\n", buffer[0], buffer[1], buffer[2], buffer[3]);
+	//printf("data being sent %d %d %d %d\n", buffer[0], buffer[1], buffer[2], buffer[3]);
 	while (i < BOMBERMAN_MAX_CLIENTS && clients[i] > 0) {
 		w_s = write(clients[i], buffer, sizeof(int) * 8);
 		if (w_s < 0)

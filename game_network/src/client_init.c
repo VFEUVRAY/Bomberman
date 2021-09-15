@@ -19,10 +19,10 @@ struct sockaddr_in init_client(int *sock)
 	if (connect(*sock, (struct sockaddr*)&server_access, sizeof(server_access)) < 0) {
 		my_puterr("Failed to connect to server (was probably not found)\n");
 		server_access.sin_port = 0;
+		return (server_access);
 	}
-	if (server_access.sin_port)
-		my_putstr("connected to server\n");
-	read(*sock, &player_number, sizeof(int));
+	my_putstr("connected to server\n");
+	recv(*sock, &player_number, sizeof(int), MSG_WAITALL);
 	printf("player_number %d\n", player_number);
 	//game->playerNumber = player_number;
 	return (server_access);
@@ -46,7 +46,7 @@ void *server_communicating_loop(void *vargs)
 int read_from_server(int socket, int *buffer)
 {
 	int read_size = 0;
-	read_size = read(socket, buffer, sizeof(int) * 8);
+	read_size = recv(socket, buffer, sizeof(int) * 8, MSG_WAITALL);
 	printf("read %d\n", read_size);
 	if (read_size < 0) {
 		my_puterr("Major error while reading from server, exiting\n");
