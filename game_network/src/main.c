@@ -82,7 +82,8 @@ int main_game_loop(int player_type)
 			pthread_create(&server_thread, NULL, client_reading_loop, game);
         SDL_Delay(16);
 		pthread_join(server_thread, NULL);
-        multi_game_move_player(&game->pPlayer);
+        multi_game_move_player(&game->pPlayers[game->playerNumber]);
+        //multi_game_move_player(&game->pPlayer);
     }
     game_destroy(game);
     return (0);

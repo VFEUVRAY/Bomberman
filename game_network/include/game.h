@@ -153,10 +153,11 @@ struct sockaddr_in	init_server(int *sock);
 void				*client_reading_loop(void *vargs);
 int                 accept_client(int *clients, int sock);
 void				set_fds(game_server_t *server);
-void 				*read_input(void *vargs);
 int                 read_client(int *clients, game_packet_t *buffer, fd_set *readfs);
 int                 send_to_clients(int *clients, game_packet_t *buffer, SDL_Rect *coords, bool_t bomb);
 int                 add_player(game_t *game);
+int                 handle_client_packets(game_packet_t *buffer, game_t *game);
+
 
 int                 max_cli(int *clients);
 

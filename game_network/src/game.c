@@ -138,7 +138,7 @@ void    game_draw(game_t *game)
         SDL_RenderCopy(game->pRenderer, game->pBombTexture, &currentBomb->bomb.spriteRect, &currentBomb->bomb.positionRect);
         currentBomb = currentBomb->next;
     }
-    SDL_RenderCopy(game->pRenderer, game->pPlayer.oTexture, &game->pPlayer.spriteRect, &game->pPlayer.positionRect);
+    //SDL_RenderCopy(game->pRenderer, game->pPlayer.oTexture, &game->pPlayer.spriteRect, &game->pPlayer.positionRect);
 
     while (player_index < 4) {
         if (game->pPlayers[player_index].alive) {
@@ -175,24 +175,28 @@ int     game_event(game_t *game)
                 case SDLK_UP :
                     game->directionKeyHoldMem[0] = 1;
                     game->pPlayer.directionKeyHoldMem[0] = 1;
+                    game->pPlayers[game->playerNumber].directionKeyHoldMem[0] = 1;
                     /*game_movePlayer(game, SDLK_UP);*/
                     return (0);
                     break;
                 case SDLK_DOWN :
                     game->directionKeyHoldMem[1] = 1;
                     game->pPlayer.directionKeyHoldMem[1] = 1;
+                    game->pPlayers[game->playerNumber].directionKeyHoldMem[1] = 1;
                     /*game_movePlayer(game, SDLK_DOWN);*/
                     return (0);
                     break;
                 case SDLK_LEFT :
                     game->directionKeyHoldMem[2] = 1;
                     game->pPlayer.directionKeyHoldMem[2] = 1;
+                    game->pPlayers[game->playerNumber].directionKeyHoldMem[2] = 1;
                     /*game_movePlayer(game, SDLK_LEFT);*/
                     return (0);
                     break;
                 case SDLK_RIGHT :
                     game->directionKeyHoldMem[3] = 1;
                     game->pPlayer.directionKeyHoldMem[3] = 1;
+                    game->pPlayers[game->playerNumber].directionKeyHoldMem[3] = 1;
                     /*game_movePlayer(game, SDLK_RIGHT);*/
                     return (0);
                     break;
@@ -219,21 +223,25 @@ int     game_event(game_t *game)
                 case (SDLK_UP):
                     game->directionKeyHoldMem[0] = 0;
                     game->pPlayer.directionKeyHoldMem[0] = 0;
+                    game->pPlayers[game->playerNumber].directionKeyHoldMem[0] = 0;
                     return (0);
                     break;
                 case (SDLK_DOWN):
                     game->directionKeyHoldMem[1] = 0;
                     game->pPlayer.directionKeyHoldMem[1] = 0;
+                    game->pPlayers[game->playerNumber].directionKeyHoldMem[1] = 0;
                     return (0);
                     break;
                 case (SDLK_LEFT):
                     game->directionKeyHoldMem[2] = 0;
                     game->pPlayer.directionKeyHoldMem[2] = 0;
+                    game->pPlayers[game->playerNumber].directionKeyHoldMem[2] = 0;
                     return (0);
                     break;
                 case (SDLK_RIGHT):
                     game->directionKeyHoldMem[3] = 0;
                     game->pPlayer.directionKeyHoldMem[3] = 0;
+                    game->pPlayers[game->playerNumber].directionKeyHoldMem[3] = 0;
                     return (0);
                     break;
                 case (SDLK_b):

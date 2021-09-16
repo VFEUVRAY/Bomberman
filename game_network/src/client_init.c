@@ -42,15 +42,15 @@ void *server_communicating_loop(void *vargs)
 		//game->pPlayer.positionRect.y = buffer[0].y;
 		handle_packet(buffer, game, player_lives);
 	}
-	send_to_server(serv->server_socket, &game->directionKeyHoldMem, game->pPlayer.positionRect);
+	send_to_server(serv->server_socket, &game->directionKeyHoldMem, game->pPlayers[game->playerNumber].positionRect);
 	return (NULL);
 }
 
-int read_from_server(int socket, game_packet_t *buffer)
+int read_from_server(int sock, game_packet_t *buffer)
 {
 	int read_size = 0;
-	read_size = recv(socket, buffer, sizeof(game_packet_t) * 4, MSG_WAITALL);
-	printf("read %d\n", read_size);
+	read_size = recv(sock, buffer, sizeof(game_packet_t) * 4, MSG_WAITALL);
+	//printf("read %d\n", read_size);
 	if (read_size < 0) {
 		my_puterr("Major error while reading from server, exiting\n");
 		return (-1);
@@ -69,6 +69,7 @@ int send_to_server(int sock, bool_t (*directions)[4], SDL_Rect coords)
 	player_buffer.x = coords.x;
 	player_buffer.y = coords.y;
 	player_buffer.bomb = 0;
+	printf("%d %d \n", player_buffer.x, player_buffer.y);
 	write_size = write(sock, &player_buffer, sizeof(game_packet_t));
 	if (write_size < 0) {
 		my_puterr("Major error while sending to server \n");
@@ -80,8 +81,8 @@ int send_to_server(int sock, bool_t (*directions)[4], SDL_Rect coords)
 int handle_packet(game_packet_t *buffer, game_t *game, bool_t *player_lives)
 {
 	int i = 0;
-	game->pPlayer.positionRect.x = buffer[0].x;
-	game->pPlayer.positionRect.y = buffer[0].y;
+	game->pPlayers[0].positionRect.x = buffer[0].x;
+	game->pPlayers[0].positionRect.y = buffer[0].y;
 	if (buffer[0].bomb)
 		add_bomb(&game->pBombs, &game->pPlayer.positionRect);
 

@@ -100,8 +100,9 @@ void *client_reading_loop(void *vargs)
 		read_client(server->clients, buffer, &server->readfs);
 		for (int live = 0 ; live < 4 ; live++)
 			buffer[live].alive = game->pPlayers[live].alive;
-		server->current_client = max_cli(server->clients);
-		send_to_clients(server->clients, buffer, &game->pPlayer.positionRect, game->bombKeyHoldCheck);
+		//server->current_client = max_cli(server->clients);
+		handle_client_packets(buffer, game);
+		send_to_clients(server->clients, buffer, &game->pPlayers[0].positionRect, game->bombKeyHoldCheck);
 	//}
 	return NULL;
 }
@@ -119,6 +120,7 @@ void set_fds(game_server_t *server)
 		
 		//printf("no clients yet\n");
 	} else {
+		my_putstr("setting\n");
 		while (i < BOMBERMAN_MAX_CLIENTS && server->clients[i] >= 0) {
 			FD_SET(server->clients[i], &server->readfs);
 			++i;
@@ -141,6 +143,7 @@ int accept_client(int *clients, int sock)
 		return (-1);
 	my_putstr("index is good\n");
 	clients[i] = accept(sock, (struct sockaddr*)&client_addr, &client_addr_len);
+	printf("%d\n", clients[i]);
 	if (clients[i] < 0)
 		return (-1);
 	my_putstr("client is accepted is good\n");
@@ -162,13 +165,15 @@ int read_client(int *clients, game_packet_t *buffer, fd_set *readfs)
 	game_packet_t player_buffer;
 	int offset = 2;
 	while (i < BOMBERMAN_MAX_CLIENTS && clients[i] > 0) {
+		printf("ayo? %d\n", clients[i]);
 		if (FD_ISSET(clients[i], readfs)){
-			read_size = read(clients[i], &player_buffer, (sizeof(game_packet_t)));
-			if (read_size < 0)
+			read_size = recv(clients[i], &player_buffer, (sizeof(game_packet_t)), MSG_WAITALL);
+			if (read_size < 0){
 				clients[i] = -1;
-			else {
-				buffer[i+1] = player_buffer;
-				//printf("received some shit %d %d\n", (*buffer)[i + offset], (*buffer)[i + offset + 1]);
+			} else {
+				buffer[i+1].x = player_buffer.x;
+				buffer[i+1].y = player_buffer.y;				
+				printf("received some shit %d %d\n", player_buffer.x, player_buffer.y);
 			}
 		}
 		++i;
@@ -220,50 +225,33 @@ int add_player(game_t *game)
 	return (1);
 }
 
-
-void *read_input(void *vargs)
-{
-	struct timeval timeout;
-	serv_game_t *info = (serv_game_t *)vargs;
-	int read_size = 0;
-	int input = -1;
-	printf("preparing to receive input\n");
-	FD_ZERO(&info->read_fs);
-	FD_SET(*info->sock, &info->read_fs);
-	timeout.tv_sec = 0;
-	timeout.tv_usec = 16000;
-	select(*info->sock + 1, &info->read_fs, NULL, NULL, &timeout);
-	//while ((read_size = recv(*info->sock, &input, sizeof(int), 0)) > 0) {
-	if (FD_ISSET(*info->sock, &info->read_fs)){
-		read_size = recv(*info->sock, &input, sizeof(int), 0);
-		if (read_size > 0) {
-			printf("input received %d \n", input);
-			if (input >= 0 && input <= 3) {
-				info->game->directionKeyHoldMem[input] = 1;
-				for (int i = 0 ; i < 4 ; i++) {
-					if (i != input)
-						info->game->directionKeyHoldMem[i] = 0;
-				}
-			} else if (input == 4) {
-				add_bomb(&info->game->pBombs, &info->game->pPlayer.positionRect);
-			}
-			return (NULL);
-		}
-	}
-	return (NULL);
-}
-
 int max_cli(int *clients)
 {
 	int i = 0;
-	int max = -1;
+	int max = 0;
 
 	while (i < BOMBERMAN_MAX_CLIENTS) {
-		if (max < clients[i])
+		if (clients[max] < clients[i])
 			max = i;
 		i++;
 	}
-	return (max);
+	printf("max: %d\n", max);
+	return (max + (max > 0));
+}
+
+int handle_client_packets(game_packet_t *buffer, game_t *game)
+{
+	int i = 1;
+
+	while (i < 4) {
+		//printf("%d %d\n", buffer[i].x, buffer[i].y);
+		if (game->pPlayers[i].alive) {
+			game->pPlayers[i].positionRect.x = buffer[i].x;
+			game->pPlayers[i].positionRect.y = buffer[i].y;
+		}
+		++i;
+	}
+	return (0);
 }
 
 /*
