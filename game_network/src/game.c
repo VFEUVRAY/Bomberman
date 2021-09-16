@@ -65,9 +65,9 @@ game_t  *game_init(int player_number)
 
     printf("pn %d\n", player_number);
     for (int i = 0 ; i < 4 ; i++) {
-        if (i > player_number)
-            game->pPlayers[i].alive = 0;
-        else {
+        
+        game->pPlayers[i].alive = 0;
+        if (i <= player_number) {
             if (!add_player(game))
                 return (NULL);
         }
@@ -202,7 +202,7 @@ int     game_event(game_t *game)
                     break;
                 case SDLK_b :
                     if (!game->bombKeyHoldCheck)
-                        add_bomb(&game->pBombs, &game->pPlayer.positionRect);
+                        add_bomb(&game->pBombs, &game->pPlayers[game->playerNumber].positionRect);
                     game->bombKeyHoldCheck = 1;
                     return (0);
                     break;
@@ -281,21 +281,30 @@ void    game_movePlayer(game_t *game)
 void    multi_game_move_player(player_object_t *player)
 {
     if (player->directionKeyHoldMem[0]) {
-        player->positionRect.y = (player->positionRect.y - 10) * (player->positionRect.y > 40)
-                                        + (10 * (player->positionRect.y <= 40));
+        player->positionRect.y -= 10;
         player->sheetLoopIndex = ((player->sheetLoopIndex + 1) % 3) + 6;
     } if (player->directionKeyHoldMem[1]) {
-        player->positionRect.y = (player->positionRect.y + 10) * ((player->positionRect.y) <= 420)
-                                        + (420 * ((player->positionRect.y + 10) > 420));
+        player->positionRect.y += 10;
         player->sheetLoopIndex = ((player->sheetLoopIndex + 1) % 3) + 9;
     } if (player->directionKeyHoldMem[2]) {
-        player->positionRect.x = (player->positionRect.x - 10) * (player->positionRect.x > 30)
-                                        + (30 * ((player->positionRect.x - 10) <= 30));
+        player->positionRect.x -= 10;
         player->sheetLoopIndex = ((player->sheetLoopIndex + 1) % 3) + 3;
     } if (player->directionKeyHoldMem[3]) {
-        player->positionRect.x = (player->positionRect.x + 10) * ((player->positionRect.x) < 590)
-                                        + (590 * (player->positionRect.x >= 590));
+        player->positionRect.x += 10;
         player->sheetLoopIndex = ((player->sheetLoopIndex + 1) % 3);
     }
+    check_collisions(player);
     player->spriteRect.x = player->sheetLoopIndex * 30;
+}
+
+void    check_collisions(player_object_t *player)
+{
+    if (player->positionRect.x < 30)
+        player->positionRect.x = 30;
+    else if (player->positionRect.x > 580)
+        player->positionRect.x = 580;
+    if (player->positionRect.y < 30)
+        player->positionRect.y = 30;
+    if (player->positionRect.y > 420)
+        player->positionRect.y = 420;
 }

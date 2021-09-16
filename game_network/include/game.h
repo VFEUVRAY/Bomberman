@@ -48,6 +48,8 @@ typedef struct player_object_s {
     unsigned int    sheetLoopIndex;
 	bool_t			directionKeyHoldMem[4];
     bool_t          alive;
+    int             ammo;
+    int             reload;
 } player_object_t;
 
 /* bomb object is different because it doesn't need to hold its own texture
@@ -133,6 +135,7 @@ void    game_draw(game_t *game);
 int     game_event(game_t *game);
 void    game_movePlayer(game_t *game);
 void    multi_game_move_player(player_object_t *player);
+void    check_collisions(player_object_t *player);
 
 /*general object related (object_initializer.c)*/
 void    object_init(game_object_t *object, int const x, int const y, int const w, int const h);
@@ -153,10 +156,11 @@ struct sockaddr_in	init_server(int *sock);
 void				*client_reading_loop(void *vargs);
 int                 accept_client(int *clients, int sock);
 void				set_fds(game_server_t *server);
-int                 read_client(int *clients, game_packet_t *buffer, fd_set *readfs);
+int                 read_client(int *clients, game_packet_t *buffer, fd_set *readfs, bool_t (*direction_buffer)[5]);
 int                 send_to_clients(int *clients, game_packet_t *buffer, SDL_Rect *coords, bool_t bomb);
 int                 add_player(game_t *game);
 int                 handle_client_packets(game_packet_t *buffer, game_t *game);
+int                 prepare_packets(bool_t (*direction_buffer)[5], game_packet_t *buffer, game_t *game);
 
 
 int                 max_cli(int *clients);
@@ -166,8 +170,9 @@ int                 max_cli(int *clients);
 struct sockaddr_in	init_client(int *sock, int *player_number);
 void				*server_communicating_loop(void *vargs);
 int					read_from_server(int sock, game_packet_t *buffer);
-int					send_to_server(int sock, bool_t (*directions)[4], SDL_Rect coords);
+int					send_to_server(int sock, bool_t (*directions)[5], SDL_Rect coords);
 int                 handle_packet(game_packet_t *buffer, game_t *game, bool_t *player_lives);
+int                 prepare_packet_for_serv(bool_t *directions, bool_t bomb, bool_t *packet_for_serv);
 
 /*miscellanious functions (misc.c)*/
 int     my_strlen(char const *str);

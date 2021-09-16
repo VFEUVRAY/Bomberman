@@ -34,6 +34,7 @@ void *server_communicating_loop(void *vargs)
 	//int read_size = 0;
 	game_packet_t buffer[4];
 	bool_t player_lives[4];
+	bool_t packet_for_serv[5];
 
 	for (int i = 0 ; i < 4 ; i++)
 		player_lives[i] = game->pPlayers[i].alive;
@@ -42,7 +43,8 @@ void *server_communicating_loop(void *vargs)
 		//game->pPlayer.positionRect.y = buffer[0].y;
 		handle_packet(buffer, game, player_lives);
 	}
-	send_to_server(serv->server_socket, &game->directionKeyHoldMem, game->pPlayers[game->playerNumber].positionRect);
+	prepare_packet_for_serv(game->pPlayers[game->playerNumber].directionKeyHoldMem, game->bombKeyHoldCheck, packet_for_serv);
+	send_to_server(serv->server_socket, &packet_for_serv, game->pPlayers[game->playerNumber].positionRect);
 	return (NULL);
 }
 
@@ -60,7 +62,7 @@ int read_from_server(int sock, game_packet_t *buffer)
 	//printf("data received 2 %d %d %d %d\n", buffer[2].x, buffer[2].y, buffer[3].x, buffer[3].y);
 	return (0);
 }
-
+/*
 int send_to_server(int sock, bool_t (*directions)[4], SDL_Rect coords)
 {
 	int write_size = 0;
@@ -69,8 +71,29 @@ int send_to_server(int sock, bool_t (*directions)[4], SDL_Rect coords)
 	player_buffer.x = coords.x;
 	player_buffer.y = coords.y;
 	player_buffer.bomb = 0;
+	write_size = player_buffer.x;
 	printf("%d %d \n", player_buffer.x, player_buffer.y);
-	write_size = write(sock, &player_buffer, sizeof(game_packet_t));
+	//write_size = write(sock, &player_buffer, sizeof(game_packet_t));
+	write_size = write(sock, *directions, sizeof(bool_t) * 4);
+	if (write_size < 0) {
+		my_puterr("Major error while sending to server \n");
+		return (84);
+	}
+	return (0);
+}
+*/
+int send_to_server(int sock, bool_t (*directions)[5], SDL_Rect coords)
+{
+	int write_size = 0;
+	game_packet_t player_buffer;
+	player_buffer.x = (*directions)[0];
+	player_buffer.x = coords.x;
+	player_buffer.y = coords.y;
+	player_buffer.bomb = 0;
+	write_size = player_buffer.x;
+	//printf("%d %d \n", player_buffer.x, player_buffer.y);
+	//write_size = write(sock, &player_buffer, sizeof(game_packet_t));
+	write_size = write(sock, *directions, sizeof(bool_t) * 5);
 	if (write_size < 0) {
 		my_puterr("Major error while sending to server \n");
 		return (84);
@@ -78,9 +101,20 @@ int send_to_server(int sock, bool_t (*directions)[4], SDL_Rect coords)
 	return (0);
 }
 
+
 int handle_packet(game_packet_t *buffer, game_t *game, bool_t *player_lives)
 {
 	int i = 0;
+
+	while (i < 4) {
+		if (game->pPlayers[i].alive){
+			game->pPlayers[i].positionRect.x = buffer[i].x;
+			game->pPlayers[i].positionRect.y = buffer[i].y;
+		} else if (player_lives[i] == 0 && buffer[i].alive == 1)
+			add_player(game);
+		++i;
+	}
+	/*
 	game->pPlayers[0].positionRect.x = buffer[0].x;
 	game->pPlayers[0].positionRect.y = buffer[0].y;
 	if (buffer[0].bomb)
@@ -90,7 +124,18 @@ int handle_packet(game_packet_t *buffer, game_t *game, bool_t *player_lives)
 		if (player_lives[i] == 0 && buffer[i].alive == 1)
 			add_player(game);
 		i++;
-	}
+	}*/
 	return (0);
 
+}
+
+int prepare_packet_for_serv(bool_t *directions, bool_t bomb, bool_t *packet_for_serv)
+{
+	int i = 0;
+	while (i < 4) {
+		packet_for_serv[i] = directions[i];
+		++i;
+	}
+	packet_for_serv[4] = bomb;
+	return (1);
 }

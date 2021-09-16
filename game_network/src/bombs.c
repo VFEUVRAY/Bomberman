@@ -10,7 +10,7 @@
 void            init_bombs(bomb_queue_t **queue, SDL_Rect *coords)
 {
     (*queue) = malloc(sizeof(bomb_queue_t));
-    (*queue)->bomb.count = 60;
+    (*queue)->bomb.count = 240;
     (*queue)->bomb.positionRect = *coords;
     (*queue)->bomb.spriteRect.x = 0;
     (*queue)->bomb.spriteRect.y = 0;
@@ -30,7 +30,7 @@ void            add_bomb(bomb_queue_t **queue, SDL_Rect *coords)
         *queue = (*queue)->next;
     (*queue)->next = malloc(sizeof(bomb_queue_t));
     *queue = (*queue)->next;
-    (*queue)->bomb.count = 60;
+    (*queue)->bomb.count = 240;
     (*queue)->bomb.positionRect = *coords;
     (*queue)->bomb.spriteRect.x = 0;
     (*queue)->bomb.spriteRect.y = 0;
