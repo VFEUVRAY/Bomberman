@@ -24,12 +24,12 @@ game_server_t *make_server_online_component()
 	return (serv);
 }
 
-game_client_t *make_client_online_component()
+game_client_t *make_client_online_component(int *player_number)
 {
 	game_client_t *serv_access = malloc(sizeof(game_client_t));
 	if (!serv_access)
 		return (NULL);
-	serv_access->server_access = init_client(&serv_access->server_socket, &serv_access->client_number);
+	serv_access->server_access = init_client(&serv_access->server_socket, player_number);
 	if (serv_access->server_access.sin_port == 0) {
 		free(serv_access);
 		return (NULL);
@@ -39,74 +39,38 @@ game_client_t *make_client_online_component()
 
 int prepare_systems(game_t **game, int player_type)
 {
-	*game = game_init();
+	void *online_component = NULL;
+	int	player_number = -1;
 
+	if (player_type == 0) {
+		online_component = (void *)make_server_online_component();
+		player_number = 0;
+	} else
+		online_component = (void *)make_client_online_component(&player_number);
+	if (!online_component){
+		my_puterr("Failed to initialize online connection, exiting\n");
+		return (84);
+	}
+	*game = game_init(player_number);
 	if (!game) {
 		my_puterr("There was an error while initializing SDL, exiting\n");
 		return (84);
 	}
+	(*game)->online_component = online_component;
+	//(*game)->playerNumber = player_number;
 	(*game)->playerType = player_type;
-	if (player_type == 0){
-		(*game)->online_component = (void *)make_server_online_component();
-		(*game)->playerNumber = 0;
-		//*server = init_server(sock);
-	} else {
-		(*game)->online_component = (void *)make_client_online_component();
-		if (!(*game)->online_component)
-			return (84);
-		(*game)->playerNumber = ((game_client_t *)(*game)->online_component)->client_number;
-		printf("p number from struct %d\n", (*game)->playerNumber);
-		//*server = init_client(sock);
-	}
-	if ((*game)->online_component == NULL) {
-		my_puterr("Failed to initialize online connection, exiting\n");
-		return (84);
-	}
 	my_putstr("SDL Initiated OK\n");
 	return (0);
 }
 
 int main_game_loop(int player_type)
 {
-	/*
-	game_t  *game = game_init();
-	int sock = -1;
-	struct sockaddr_in server = init_server(&sock);
-	*/
-	//serv_game_t *game_input_reader = malloc(sizeof(serv_game_t));
-
-	pthread_t server_thread;
-
-	//struct sockaddr_in server;
 	game_t *game = NULL;
-	//int sock = -1;
+	pthread_t server_thread;
 
 	if (prepare_systems(&game, player_type) > 0)
 		return (84);
 
-	/*
-	if (server.sin_port == 0) {
-		my_puterr("Server initialization failed, exiting\n");
-		return (84);
-	}
-	int client = accept(sock, (struct sockaddr*)&client_addr, &client_addr_len);
-	if (client > 0)
-		printf ("Client Accepted successfully: %d\n", client);
-    int quit = 0;
-    if (game){
-        my_putstr("SDL Initiated OK\n");
-    }
-	*/
-/*
-	int client = accept(sock, (struct sockaddr*)&client_addr, &client_addr_len);
-	if (client > 0)
-		printf ("Client Accepted successfully: %d\n", client);
-
-    int quit = 0;
-	game_input_reader->game = game;
-	game_input_reader->server = &server;
-	game_input_reader->sock = &client;
-*/
 	int quit = 0;
     while (quit != 1) {
 		//printf("looping\n");

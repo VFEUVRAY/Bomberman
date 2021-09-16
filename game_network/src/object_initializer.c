@@ -7,7 +7,12 @@
 
 #include "../include/game.h"
 
-int *BOMBERMAN_BASE_PLAYERS_POS[8] = {(int []){30, 30}, (int []){610, 30}, (int []){30, 450}, (int []){610, 450}};
+int *BOMBERMAN_BASE_PLAYERS_POS[8] = {(int []){30, 30}, (int []){580, 30}, (int []){30, 420}, (int []){580, 420}};
+
+char const **BOMBERMAN_PLAYER_SHEET_PATHS =  (char const *[]){"./assets/PlayerDummySheet.png",
+                                     "./assets/PlayerDummySheet2.png",
+                                     "./assets/PlayerDummySheet3.png",
+                                     "./assets/PlayerDummySheet4.png"};
 
 SDL_Texture *create_texture(SDL_Renderer *renderer, char const *path)
 {
@@ -41,11 +46,11 @@ int player_init(player_object_t *player, int player_number, SDL_Renderer *render
         player->alive = 0;
         return 0;
     }
-    player->oTexture = create_texture(renderer, "./assets/PlayerDummySheet.png");
+    player->oTexture = create_texture(renderer, BOMBERMAN_PLAYER_SHEET_PATHS[player_number]);
     if (!player->oTexture)
         return (0);
-    player->positionRect.x = BOMBERMAN_BASE_PLAYERS_POS[player_number-1][0];
-    player->positionRect.y = BOMBERMAN_BASE_PLAYERS_POS[player_number-1][1];
+    player->positionRect.x = BOMBERMAN_BASE_PLAYERS_POS[player_number][0];
+    player->positionRect.y = BOMBERMAN_BASE_PLAYERS_POS[player_number][1];
     player->positionRect.w = 30;
     player->positionRect.h = 30;
 

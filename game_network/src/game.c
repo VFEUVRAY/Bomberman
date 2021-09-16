@@ -11,7 +11,7 @@
  * will initiate game + SDL
  **/
 
-game_t  *game_init()
+game_t  *game_init(int player_number)
 {
     game_t  *game = NULL;
     game = malloc(sizeof(game_t));
@@ -31,19 +31,12 @@ game_t  *game_init()
     game->pPlayer.oTexture = NULL;
     game->pBombTexture = NULL;
     game->pBombs = NULL;
+    game->playerNumber = player_number;
     
 	game->pPlayers = malloc(sizeof(player_object_t) * 4);
-    for (int i = 0 ; i < 4 ; i++)
-        game->pPlayers[i].alive = 0;
     object_init(&game->pMap, 0, 0, game->screenSize.x, game->screenSize.y);
     game->directionKeyHoldMem[0] = game->directionKeyHoldMem[1] = game->directionKeyHoldMem[2] = game->directionKeyHoldMem[3] = 0;
     game->bombKeyHoldCheck = 0;
-    /*
-    game->pPlayer.positionRect.x = ;
-    game->pPlayer.positionRect.y = ;
-    game->pPlayer.positionRect.w = ;
-    game->pPlayer.positionRect.h = 30;
-    */
 
     /*Initialisation des modules nécessaires*/
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
@@ -70,27 +63,18 @@ game_t  *game_init()
         return (NULL);
     }
 
-
-    if (!player_init(&game->pPlayer, 1, game->pRenderer))
-        return (NULL);
-
-    /*loading a texture*/
-    /*IMG_Init(IMG_INIT_PNG);*/
-    /*
-    SDL_Surface* surfacePlayer = IMG_Load("./assets/PlayerDummySheet.png");
-    if (!surfacePlayer) {
-        my_putCharArray((char const *[]){"Could not open Player Image:", IMG_GetError(), "\n", NULL}, 2);
-        game_destroy(game);
-        return (NULL);
+    printf("pn %d\n", player_number);
+    for (int i = 0 ; i < 4 ; i++) {
+        if (i > player_number)
+            game->pPlayers[i].alive = 0;
+        else {
+            if (!add_player(game))
+                return (NULL);
+        }
     }
-    game->pPlayer.oTexture = SDL_CreateTextureFromSurface(game->pRenderer, surfacePlayer);
-    if (!game->pPlayer.oTexture) {
-        my_putCharArray((char const *[]){"Could create texture from image generated surface:", SDL_GetError(), "\n", NULL}, 2);
-        game_destroy(game);
+    if (!player_init(&game->pPlayer, player_number, game->pRenderer))
         return (NULL);
-    }
-    SDL_FreeSurface(surfacePlayer);
-    */
+
     SDL_Surface *surfacePlayer = IMG_Load("./assets/bombermap.jpg");
     if (!surfacePlayer) {
         my_putCharArray((char const *[]){"Could not open Map Image:", IMG_GetError(), "\n", NULL}, 2);

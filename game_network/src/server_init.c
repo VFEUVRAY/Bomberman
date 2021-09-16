@@ -98,6 +98,8 @@ void *client_reading_loop(void *vargs)
 		}
 		*/
 		read_client(server->clients, buffer, &server->readfs);
+		for (int live = 0 ; live < 4 ; live++)
+			buffer[live].alive = game->pPlayers[live].alive;
 		server->current_client = max_cli(server->clients);
 		send_to_clients(server->clients, buffer, &game->pPlayer.positionRect, game->bombKeyHoldCheck);
 	//}
@@ -186,6 +188,7 @@ int send_to_clients(int *clients, game_packet_t *buffer, SDL_Rect *coords, bool_
 	buffer[0].y = coords->y;
 	buffer[0].player = 0;
 	buffer[0].bomb = bomb;
+	buffer[0].alive = 1;
 	//printf("data being sent %d %d %d %d\n", buffer[0].x, buffer[0].y, buffer[1].x, buffer[1].y);
 	while (i < BOMBERMAN_MAX_CLIENTS && clients[i] > 0) {
 		w_s = write(clients[i], buffer, sizeof(game_packet_t) * 4);
@@ -205,7 +208,7 @@ int add_player(game_t *game)
 	if (i >= 4)
 		return (-1);
 	printf("creating player\n");
-	if (!player_init(&game->pPlayers[i], 2, game->pRenderer)){
+	if (!player_init(&game->pPlayers[i], i, game->pRenderer)){
 		printf("init failed\n");
 		return (-1);
 	}

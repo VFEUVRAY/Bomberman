@@ -33,11 +33,14 @@ void *server_communicating_loop(void *vargs)
 	game_client_t *serv = (game_client_t*)game->online_component;
 	//int read_size = 0;
 	game_packet_t buffer[4];
+	bool_t player_lives[4];
 
+	for (int i = 0 ; i < 4 ; i++)
+		player_lives[i] = game->pPlayers[i].alive;
 	if (read_from_server(serv->server_socket, buffer) >= 0) {
 		//game->pPlayer.positionRect.x = buffer[0].x;
 		//game->pPlayer.positionRect.y = buffer[0].y;
-		handle_packet(buffer, game);
+		handle_packet(buffer, game, player_lives);
 	}
 	send_to_server(serv->server_socket, &game->directionKeyHoldMem, game->pPlayer.positionRect);
 	return (NULL);
@@ -53,8 +56,8 @@ int read_from_server(int socket, game_packet_t *buffer)
 		return (-1);
 	}
 	//buffer--;
-	printf("data received 1 %d %d %d %d\n", buffer[0].x, buffer[0].y, buffer[1].x, buffer[1].y);
-	printf("data received 2 %d %d %d %d\n", buffer[2].x, buffer[2].y, buffer[3].x, buffer[3].y);
+	//printf("data received 1 %d %d %d %d\n", buffer[0].x, buffer[0].y, buffer[1].x, buffer[1].y);
+	//printf("data received 2 %d %d %d %d\n", buffer[2].x, buffer[2].y, buffer[3].x, buffer[3].y);
 	return (0);
 }
 
@@ -74,11 +77,19 @@ int send_to_server(int sock, bool_t (*directions)[4], SDL_Rect coords)
 	return (0);
 }
 
-int handle_packet(game_packet_t *buffer, game_t *game)
+int handle_packet(game_packet_t *buffer, game_t *game, bool_t *player_lives)
 {
+	int i = 0;
 	game->pPlayer.positionRect.x = buffer[0].x;
 	game->pPlayer.positionRect.y = buffer[0].y;
 	if (buffer[0].bomb)
 		add_bomb(&game->pBombs, &game->pPlayer.positionRect);
+
+	while (i < 4) {
+		if (player_lives[i] == 0 && buffer[i].alive == 1)
+			add_player(game);
+		i++;
+	}
 	return (0);
+
 }

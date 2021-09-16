@@ -123,10 +123,11 @@ typedef struct game_packet_s {
     int     x;
     int     y;
     bool_t  bomb;
+    bool_t  alive;
 } game_packet_t;
 
 /*game related (game.c)*/
-game_t  *game_init();
+game_t  *game_init(int player_number);
 void    game_destroy(game_t *game);
 void    game_draw(game_t *game);
 int     game_event(game_t *game);
@@ -165,7 +166,7 @@ struct sockaddr_in	init_client(int *sock, int *player_number);
 void				*server_communicating_loop(void *vargs);
 int					read_from_server(int sock, game_packet_t *buffer);
 int					send_to_server(int sock, bool_t (*directions)[4], SDL_Rect coords);
-int                 handle_packet(game_packet_t *buffer, game_t *game);
+int                 handle_packet(game_packet_t *buffer, game_t *game, bool_t *player_lives);
 
 /*miscellanious functions (misc.c)*/
 int     my_strlen(char const *str);
