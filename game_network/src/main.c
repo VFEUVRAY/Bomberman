@@ -83,7 +83,7 @@ int main_game_loop(int player_type)
         SDL_Delay(16);
 		pthread_join(server_thread, NULL);
 		if (!player_type)
-        	multi_game_move_player(&game->pPlayers[game->playerNumber]);
+        	multi_game_move_player(&game->pPlayers[game->playerNumber], game->walls);
         //multi_game_move_player(&game->pPlayer);
     }
     game_destroy(game);

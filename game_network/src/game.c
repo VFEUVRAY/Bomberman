@@ -32,6 +32,7 @@ game_t  *game_init(int player_number)
     game->pBombTexture = NULL;
     game->pBombs = NULL;
     game->playerNumber = player_number;
+    game->walls = NULL;
     
 	game->pPlayers = malloc(sizeof(player_object_t) * 4);
     object_init(&game->pMap, 0, 0, game->screenSize.x, game->screenSize.y);
@@ -74,6 +75,9 @@ game_t  *game_init(int player_number)
     }
     if (!player_init(&game->pPlayer, player_number, game->pRenderer))
         return (NULL);
+    
+    if (!player_number)
+        game->walls = create_walls();
 
     SDL_Surface *surfacePlayer = IMG_Load("./assets/bombermap.jpg");
     if (!surfacePlayer) {
@@ -278,33 +282,36 @@ void    game_movePlayer(game_t *game)
     game->pPlayer.spriteRect.x = game->pPlayer.sheetLoopIndex * 30;
 }
 
-void    multi_game_move_player(player_object_t *player)
+void copy_coords(SDL_Rect *dest, SDL_Rect *source, bool_t full)
 {
-    if (player->directionKeyHoldMem[0]) {
-        player->positionRect.y -= 10;
-        player->sheetLoopIndex = ((player->sheetLoopIndex + 1) % 3) + 6;
-    } if (player->directionKeyHoldMem[1]) {
-        player->positionRect.y += 10;
-        player->sheetLoopIndex = ((player->sheetLoopIndex + 1) % 3) + 9;
-    } if (player->directionKeyHoldMem[2]) {
-        player->positionRect.x -= 10;
-        player->sheetLoopIndex = ((player->sheetLoopIndex + 1) % 3) + 3;
-    } if (player->directionKeyHoldMem[3]) {
-        player->positionRect.x += 10;
-        player->sheetLoopIndex = ((player->sheetLoopIndex + 1) % 3);
+    dest->x = source->x;
+    dest->y = source->y;
+    if (full) {
+        dest->w = source->w;
+        dest->h = source->h;
     }
-    check_collisions(player);
-    player->spriteRect.x = player->sheetLoopIndex * 30;
 }
 
-void    check_collisions(player_object_t *player)
+void    multi_game_move_player(player_object_t *player, object_queue_t *walls)
 {
-    if (player->positionRect.x < 30)
-        player->positionRect.x = 30;
-    else if (player->positionRect.x > 580)
-        player->positionRect.x = 580;
-    if (player->positionRect.y < 30)
-        player->positionRect.y = 30;
-    if (player->positionRect.y > 420)
-        player->positionRect.y = 420;
+    SDL_Rect new_coords;
+
+    copy_coords(&new_coords, &player->positionRect, 0);
+    if (player->directionKeyHoldMem[0]) {
+        new_coords.y -= 10;
+        player->sheetLoopIndex = ((player->sheetLoopIndex + 1) % 3) + 6;
+    } if (player->directionKeyHoldMem[1]) {
+        new_coords.y += 10;
+        player->sheetLoopIndex = ((player->sheetLoopIndex + 1) % 3) + 9;
+    } if (player->directionKeyHoldMem[2]) {
+        new_coords.x -= 10;
+        player->sheetLoopIndex = ((player->sheetLoopIndex + 1) % 3) + 3;
+    } if (player->directionKeyHoldMem[3]) {
+        new_coords.x += 10;
+        player->sheetLoopIndex = ((player->sheetLoopIndex + 1) % 3);
+    }
+    check_collisions(&new_coords);
+    if (check_walls(walls, &new_coords))
+        copy_coords(&player->positionRect, &new_coords, 0);
+    player->spriteRect.x = player->sheetLoopIndex * 30;
 }

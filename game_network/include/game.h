@@ -20,6 +20,7 @@
 # include <sys/socket.h>
 # include <netdb.h>
 # include <netinet/in.h>
+# include <netinet/tcp.h>
 # include <pthread.h>
 
 /*Typdef for string output function pointers.
@@ -36,6 +37,13 @@ typedef struct game_object_s {
     SDL_Rect        positionRect;
     SDL_Rect        spriteRect;
 } game_object_t;
+
+/* queue for objects */
+
+typedef struct object_queue_s {
+    game_object_t           object;
+    struct object_queue_s   *next;
+} object_queue_t;
 
 /*Structure specific to player object
 the added spriteRect is meant to be used as source rectangle
@@ -65,9 +73,11 @@ typedef struct bomb_object_s {
 /*Queue which will contain bombs*/
 
 typedef struct bomb_queue_s {
-    bomb_object_t bomb;
+    bomb_object_t       bomb;
     struct bomb_queue_s *next;
 } bomb_queue_t;
+
+
 
 /*General game structure, will hold information necessary for each rendering loops
 Also data that might affect multiple redundant objects
@@ -88,6 +98,7 @@ typedef struct game_s {
     bomb_queue_t    *pBombs;
     bool_t          directionKeyHoldMem[4];
     bool_t          bombKeyHoldCheck;
+    object_queue_t  *walls;
 
 	void			*online_component; /*Cast into appropriate structure when using in functions */
 } game_t;
@@ -135,8 +146,15 @@ void    game_destroy(game_t *game);
 void    game_draw(game_t *game);
 int     game_event(game_t *game);
 void    game_movePlayer(game_t *game);
-void    multi_game_move_player(player_object_t *player);
-void    check_collisions(player_object_t *player);
+void    multi_game_move_player(player_object_t *player, object_queue_t *walls);
+void    copy_coords(SDL_Rect *dest, SDL_Rect *source, bool_t full);
+
+
+/* collision related (collisions.c) */
+
+void            check_collisions(SDL_Rect *coords);
+bool_t          check_walls(object_queue_t *wall, SDL_Rect *new_coords);
+object_queue_t  *create_walls();
 
 /*general object related (object_initializer.c)*/
 void    object_init(game_object_t *object, int const x, int const y, int const w, int const h);

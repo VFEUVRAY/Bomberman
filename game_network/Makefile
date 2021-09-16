@@ -7,6 +7,7 @@ SRC =	./src/game.c				\
 		./src/debug.c				\
 		./src/server_init.c			\
 		./src/client_init.c			\
+		./src/collisions.c			\
 		./src/main.c
 HED =	./include/game.h
 OBJ =	$(SRC:%.c=%.o)

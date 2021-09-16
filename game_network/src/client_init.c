@@ -10,11 +10,13 @@
 struct sockaddr_in init_client(int *sock, int *player_number)
 {
 	struct sockaddr_in server_access;
+	int enable = 1;
 	server_access.sin_addr.s_addr = inet_addr("127.0.1.1");
 	server_access.sin_family = AF_INET;
 	server_access.sin_port = htons(8001);
 	*sock = socket(AF_INET, SOCK_STREAM, 0);
 
+	setsockopt(*sock, IPPROTO_TCP, TCP_CORK, &enable, sizeof(enable));
 	if (connect(*sock, (struct sockaddr*)&server_access, sizeof(server_access)) < 0) {
 		my_puterr("Failed to connect to server (was probably not found)\n");
 		server_access.sin_port = 0;

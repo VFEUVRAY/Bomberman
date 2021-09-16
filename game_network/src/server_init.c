@@ -16,8 +16,10 @@ struct sockaddr_in init_server(int *sock)
 	server.sin_addr.s_addr = INADDR_ANY;
 	server.sin_family = AF_INET;
 	server.sin_port = htons(8001);
+	int enable = 1;
 
 	*sock = socket(AF_INET, SOCK_STREAM, 0);
+	setsockopt(*sock, IPPROTO_TCP, TCP_CORK, &enable, sizeof(enable));
 	if (*sock < 0) {
 		my_puterr("init_server(): Failed to create socket\n");
 		server.sin_port = 0;
@@ -253,7 +255,7 @@ int prepare_packets(bool_t (*direction_buffer)[5], game_packet_t *buffer, game_t
 			if (i) {
 				for (y = 0 ; y < 4 ; y++)
 					game->pPlayers[i].directionKeyHoldMem[y] = direction_buffer[i][y];
-				multi_game_move_player(&game->pPlayers[i]);
+				multi_game_move_player(&game->pPlayers[i], game->walls);
 				bomb_request = direction_buffer[i][4];
 			}
 			buffer[i].x = game->pPlayers[i].positionRect.x;
