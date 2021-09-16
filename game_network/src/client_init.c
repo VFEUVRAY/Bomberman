@@ -110,6 +110,8 @@ int handle_packet(game_packet_t *buffer, game_t *game, bool_t *player_lives)
 		if (game->pPlayers[i].alive){
 			game->pPlayers[i].positionRect.x = buffer[i].x;
 			game->pPlayers[i].positionRect.y = buffer[i].y;
+			if (buffer[i].bomb)
+				add_bomb(&game->pBombs, &game->pPlayers[i].positionRect);
 		} else if (player_lives[i] == 0 && buffer[i].alive == 1)
 			add_player(game);
 		++i;

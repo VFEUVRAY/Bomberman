@@ -177,7 +177,7 @@ int send_to_clients(int *clients, game_packet_t *buffer, SDL_Rect *coords, bool_
 {
 	int i = 0;
 	int w_s = 0;
-	
+
 	buffer[0].x = coords->x;
 	buffer[0].y = coords->y;
 	buffer[0].player = 0;
@@ -246,6 +246,7 @@ int prepare_packets(bool_t (*direction_buffer)[5], game_packet_t *buffer, game_t
 {
 	int i = 0;
 	int y = 0;
+	bool_t bomb_request;
 
 	while (i < 4) {
 		if (game->pPlayers[i].alive) {
@@ -253,10 +254,17 @@ int prepare_packets(bool_t (*direction_buffer)[5], game_packet_t *buffer, game_t
 				for (y = 0 ; y < 4 ; y++)
 					game->pPlayers[i].directionKeyHoldMem[y] = direction_buffer[i][y];
 				multi_game_move_player(&game->pPlayers[i]);
+				bomb_request = direction_buffer[i][4];
 			}
 			buffer[i].x = game->pPlayers[i].positionRect.x;
 			buffer[i].y = game->pPlayers[i].positionRect.y;
 			buffer[i].alive = game->pPlayers[i].alive;
+			if (bomb_request && !game->pPlayers[i].bombKeyHoldCheck) {
+				add_bomb(&game->pBombs, &game->pPlayers[i].positionRect);
+				buffer[i].bomb = 1;
+			} else
+				buffer[i].bomb = 0;
+			game->pPlayers[i].bombKeyHoldCheck = bomb_request;
 		}
 		++i;
 	}

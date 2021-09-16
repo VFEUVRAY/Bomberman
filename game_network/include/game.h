@@ -48,6 +48,7 @@ typedef struct player_object_s {
     unsigned int    sheetLoopIndex;
 	bool_t			directionKeyHoldMem[4];
     bool_t          alive;
+    bool_t          bombKeyHoldCheck;
     int             ammo;
     int             reload;
 } player_object_t;
