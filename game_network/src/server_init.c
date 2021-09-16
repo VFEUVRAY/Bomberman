@@ -59,7 +59,7 @@ void *client_reading_loop(void *vargs)
 {
 	game_t *game = (game_t *)vargs;
 	game_server_t *server = (game_server_t *)game->online_component;
-	int buffer[8];
+	game_packet_t buffer[4];
 	//struct sockaddr_in client_addr;
 	//socklen_t client_addr_len;
 	//fd_set readfs;
@@ -97,7 +97,7 @@ void *client_reading_loop(void *vargs)
 				read_client(server->clients, &buffer, &server->readfs);
 		}
 		*/
-		read_client(server->clients, &buffer, &server->readfs);
+		read_client(server->clients, buffer, &server->readfs);
 		server->current_client = max_cli(server->clients);
 		send_to_clients(server->clients, buffer, &game->pPlayer.positionRect);
 	//}
@@ -153,20 +153,19 @@ int accept_client(int *clients, int sock)
 
 /* Read incoming inputs from client */
 
-int read_client(int *clients, int (*buffer)[8], fd_set *readfs)
+int read_client(int *clients, game_packet_t *buffer, fd_set *readfs)
 {
 	int i = 0;
 	int read_size;
-	int player_buffer[2];
+	game_packet_t player_buffer;
 	int offset = 2;
 	while (i < BOMBERMAN_MAX_CLIENTS && clients[i] > 0) {
 		if (FD_ISSET(clients[i], readfs)){
-			read_size = read(clients[i], player_buffer, (sizeof(int) * 2));
+			read_size = read(clients[i], &player_buffer, (sizeof(game_packet_t)));
 			if (read_size < 0)
 				clients[i] = -1;
 			else {
-				(*buffer)[offset] = player_buffer[0];
-				(*buffer)[offset + 1] = player_buffer[1];
+				buffer[i+1] = player_buffer;
 				//printf("received some shit %d %d\n", (*buffer)[i + offset], (*buffer)[i + offset + 1]);
 			}
 		}
@@ -178,16 +177,18 @@ int read_client(int *clients, int (*buffer)[8], fd_set *readfs)
 
 /* send total new positionning information to clients, animation work is up to them */
 
-int send_to_clients(int *clients, int *buffer, SDL_Rect *coords)
+int send_to_clients(int *clients, game_packet_t *buffer, SDL_Rect *coords)
 {
 	int i = 0;
 	int w_s = 0;
 	
-	buffer[0] = coords->x;
-	buffer[1] = coords->y;
+	buffer[0].x = coords->x;
+	buffer[0].y = coords->y;
+	buffer[0].player = 0;
+	buffer[0].bomb = 0;
 	//printf("data being sent %d %d %d %d\n", buffer[0], buffer[1], buffer[2], buffer[3]);
 	while (i < BOMBERMAN_MAX_CLIENTS && clients[i] > 0) {
-		w_s = write(clients[i], buffer, sizeof(int) * 8);
+		w_s = write(clients[i], buffer, sizeof(game_packet_t) * 4);
 		if (w_s < 0)
 			printf("Clients %d disconnected", clients[i]);
 		++i;

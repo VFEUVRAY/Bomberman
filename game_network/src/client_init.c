@@ -32,39 +32,40 @@ void *server_communicating_loop(void *vargs)
 	game_t *game = (game_t *) vargs;
 	game_client_t *serv = (game_client_t*)game->online_component;
 	//int read_size = 0;
-	int buffer[8];
+	game_packet_t buffer[4];
 
 	if (read_from_server(serv->server_socket, buffer) >= 0) {
-		game->pPlayer.positionRect.x = buffer[0];
-		game->pPlayer.positionRect.y = buffer[1];
+		game->pPlayer.positionRect.x = buffer[0].x;
+		game->pPlayer.positionRect.y = buffer[0].y;
 	}
 	send_to_server(serv->server_socket, &game->directionKeyHoldMem, game->pPlayer.positionRect);
 	return (NULL);
 }
 
-int read_from_server(int socket, int *buffer)
+int read_from_server(int socket, game_packet_t *buffer)
 {
 	int read_size = 0;
-	read_size = recv(socket, buffer, sizeof(int) * 8, MSG_WAITALL);
+	read_size = recv(socket, buffer, sizeof(game_packet_t) * 4, MSG_WAITALL);
 	printf("read %d\n", read_size);
 	if (read_size < 0) {
 		my_puterr("Major error while reading from server, exiting\n");
 		return (-1);
 	}
 	//buffer--;
-	printf("data received 1 %d %d %d %d\n", buffer[0], buffer[1], buffer[2], buffer[3]);
-	printf("data received 2 %d %d %d %d\n", buffer[4], buffer[5], buffer[6], buffer[7]);
+	printf("data received 1 %d %d %d %d\n", buffer[0].x, buffer[0].y, buffer[1].x, buffer[1].y);
+	printf("data received 2 %d %d %d %d\n", buffer[2].x, buffer[2].y, buffer[3].x, buffer[3].y);
 	return (0);
 }
 
 int send_to_server(int sock, bool_t (*directions)[4], SDL_Rect coords)
 {
 	int write_size = 0;
-	int buffer[2];
-	buffer[0] = (*directions)[0];
-	buffer[0] = coords.x;
-	buffer[1] = coords.y;
-	write_size = write(sock, buffer, sizeof(int) * 2);
+	game_packet_t player_buffer;
+	player_buffer.x = (*directions)[0];
+	player_buffer.x = coords.x;
+	player_buffer.y = coords.y;
+	player_buffer.bomb = 0;
+	write_size = write(sock, &player_buffer, sizeof(game_packet_t));
 	if (write_size < 0) {
 		my_puterr("Major error while sending to server \n");
 		return (84);
