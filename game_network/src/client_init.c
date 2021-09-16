@@ -35,8 +35,9 @@ void *server_communicating_loop(void *vargs)
 	game_packet_t buffer[4];
 
 	if (read_from_server(serv->server_socket, buffer) >= 0) {
-		game->pPlayer.positionRect.x = buffer[0].x;
-		game->pPlayer.positionRect.y = buffer[0].y;
+		//game->pPlayer.positionRect.x = buffer[0].x;
+		//game->pPlayer.positionRect.y = buffer[0].y;
+		handle_packet(buffer, game);
 	}
 	send_to_server(serv->server_socket, &game->directionKeyHoldMem, game->pPlayer.positionRect);
 	return (NULL);
@@ -70,5 +71,14 @@ int send_to_server(int sock, bool_t (*directions)[4], SDL_Rect coords)
 		my_puterr("Major error while sending to server \n");
 		return (84);
 	}
+	return (0);
+}
+
+int handle_packet(game_packet_t *buffer, game_t *game)
+{
+	game->pPlayer.positionRect.x = buffer[0].x;
+	game->pPlayer.positionRect.y = buffer[0].y;
+	if (buffer[0].bomb)
+		add_bomb(&game->pBombs, &game->pPlayer.positionRect);
 	return (0);
 }

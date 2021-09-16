@@ -154,7 +154,7 @@ int                 accept_client(int *clients, int sock);
 void				set_fds(game_server_t *server);
 void 				*read_input(void *vargs);
 int                 read_client(int *clients, game_packet_t *buffer, fd_set *readfs);
-int                 send_to_clients(int *clients, game_packet_t *buffer, SDL_Rect *coords);
+int                 send_to_clients(int *clients, game_packet_t *buffer, SDL_Rect *coords, bool_t bomb);
 int                 add_player(game_t *game);
 
 int                 max_cli(int *clients);
@@ -165,6 +165,7 @@ struct sockaddr_in	init_client(int *sock, int *player_number);
 void				*server_communicating_loop(void *vargs);
 int					read_from_server(int sock, game_packet_t *buffer);
 int					send_to_server(int sock, bool_t (*directions)[4], SDL_Rect coords);
+int                 handle_packet(game_packet_t *buffer, game_t *game);
 
 /*miscellanious functions (misc.c)*/
 int     my_strlen(char const *str);

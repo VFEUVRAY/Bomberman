@@ -87,7 +87,7 @@ void *client_reading_loop(void *vargs)
 			//server->current_client++;
 			if (accept_client(server->clients, server->sock) < 0)
 				my_puterr("Client accept no worky\n");
-			//add_player(game);
+			add_player(game);
 			server->current_client++;
 			my_putstr("Client accepted\n");
 		}
@@ -99,7 +99,7 @@ void *client_reading_loop(void *vargs)
 		*/
 		read_client(server->clients, buffer, &server->readfs);
 		server->current_client = max_cli(server->clients);
-		send_to_clients(server->clients, buffer, &game->pPlayer.positionRect);
+		send_to_clients(server->clients, buffer, &game->pPlayer.positionRect, game->bombKeyHoldCheck);
 	//}
 	return NULL;
 }
@@ -177,7 +177,7 @@ int read_client(int *clients, game_packet_t *buffer, fd_set *readfs)
 
 /* send total new positionning information to clients, animation work is up to them */
 
-int send_to_clients(int *clients, game_packet_t *buffer, SDL_Rect *coords)
+int send_to_clients(int *clients, game_packet_t *buffer, SDL_Rect *coords, bool_t bomb)
 {
 	int i = 0;
 	int w_s = 0;
@@ -185,8 +185,8 @@ int send_to_clients(int *clients, game_packet_t *buffer, SDL_Rect *coords)
 	buffer[0].x = coords->x;
 	buffer[0].y = coords->y;
 	buffer[0].player = 0;
-	buffer[0].bomb = 0;
-	//printf("data being sent %d %d %d %d\n", buffer[0], buffer[1], buffer[2], buffer[3]);
+	buffer[0].bomb = bomb;
+	//printf("data being sent %d %d %d %d\n", buffer[0].x, buffer[0].y, buffer[1].x, buffer[1].y);
 	while (i < BOMBERMAN_MAX_CLIENTS && clients[i] > 0) {
 		w_s = write(clients[i], buffer, sizeof(game_packet_t) * 4);
 		if (w_s < 0)
