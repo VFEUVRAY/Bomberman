@@ -29,7 +29,7 @@ game_client_t *make_client_online_component()
 	game_client_t *serv_access = malloc(sizeof(game_client_t));
 	if (!serv_access)
 		return (NULL);
-	serv_access->server_access = init_client(&serv_access->server_socket);
+	serv_access->server_access = init_client(&serv_access->server_socket, &serv_access->client_number);
 	if (serv_access->server_access.sin_port == 0) {
 		free(serv_access);
 		return (NULL);
@@ -40,6 +40,7 @@ game_client_t *make_client_online_component()
 int prepare_systems(game_t **game, int player_type)
 {
 	*game = game_init();
+
 	if (!game) {
 		my_puterr("There was an error while initializing SDL, exiting\n");
 		return (84);
@@ -51,7 +52,10 @@ int prepare_systems(game_t **game, int player_type)
 		//*server = init_server(sock);
 	} else {
 		(*game)->online_component = (void *)make_client_online_component();
-		(*game)->playerNumber = 1;
+		if (!(*game)->online_component)
+			return (84);
+		(*game)->playerNumber = ((game_client_t *)(*game)->online_component)->client_number;
+		printf("p number from struct %d\n", (*game)->playerNumber);
 		//*server = init_client(sock);
 	}
 	if ((*game)->online_component == NULL) {
@@ -114,7 +118,7 @@ int main_game_loop(int player_type)
 			pthread_create(&server_thread, NULL, client_reading_loop, game);
         SDL_Delay(16);
 		pthread_join(server_thread, NULL);
-        game_movePlayer(game);
+        multi_game_move_player(&game->pPlayer);
     }
     game_destroy(game);
     return (0);

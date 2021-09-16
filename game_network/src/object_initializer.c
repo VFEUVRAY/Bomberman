@@ -56,5 +56,7 @@ int player_init(player_object_t *player, int player_number, SDL_Renderer *render
 
     player->sheetLoopIndex = 0;
     player->alive = 1;
+
+    player->directionKeyHoldMem[0] = player->directionKeyHoldMem[1] = player->directionKeyHoldMem[2] = player->directionKeyHoldMem[3] = 0;
     return (1);
 }

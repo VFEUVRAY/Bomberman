@@ -115,7 +115,15 @@ typedef struct game_server_s {
 typedef struct game_client_s {
 	struct sockaddr_in	server_access;
 	int					server_socket;
+    int                 client_number;
 } game_client_t;
+
+typedef struct game_packet_s {
+    int     player;
+    int     x;
+    int     y;
+    bool_t  bomb;
+} game_packet_t;
 
 /*game related (game.c)*/
 game_t  *game_init();
@@ -153,7 +161,7 @@ int                 max_cli(int *clients);
 
 /* functions regarding client side network implementation (client_init.c) */
 
-struct sockaddr_in	init_client(int *sock);
+struct sockaddr_in	init_client(int *sock, int *player_number);
 void				*server_communicating_loop(void *vargs);
 int					read_from_server(int sock, int *buffer);
 int					send_to_server(int sock, bool_t (*directions)[4], SDL_Rect coords);
