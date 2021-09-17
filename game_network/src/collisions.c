@@ -7,6 +7,13 @@
 
 #include "../include/game.h"
 
+int BOMBERMAN_BASE_WALL_POS[16][2] = {   (int []){90, 90}, (int []){90, 180}, (int []){90, 270}, (int []){90, 360},
+                                        (int []){150, 90}, (int []){150, 180}, (int []){150, 270}, (int []){150, 360},
+                                        (int []){210, 90}, (int []){210, 180}, (int []){210, 270}, (int []){210, 360},
+                                        (int []){270, 90}, (int []){270, 180}, (int []){270, 270}, (int []){270, 360}};
+int const BOMBER_WALL_NB = 16;
+
+
 void    check_collisions(SDL_Rect *coords)
 {
     if (coords->x < 30)
@@ -26,8 +33,6 @@ bool_t check_walls(object_queue_t *walls, SDL_Rect *new_coords)
 
     while (current_wall) {
         wall_coords = &current_wall->object.positionRect;
-        printf("wall : %d %d %d %d\n", wall_coords->x, wall_coords->x + wall_coords->w, wall_coords->y, wall_coords->y + wall_coords->h);
-        printf("char : %d %d\n", new_coords->x, new_coords->y);
         if ((new_coords->x > wall_coords->x && new_coords->x < (wall_coords->x + wall_coords->w))
             && (new_coords->y > wall_coords->y && new_coords->y < (wall_coords->y + wall_coords->h))) {
             my_putstr("checking walls \n");
@@ -41,12 +46,29 @@ bool_t check_walls(object_queue_t *walls, SDL_Rect *new_coords)
 object_queue_t *create_walls()
 {
     object_queue_t *walls = malloc(sizeof(object_queue_t));
+    object_queue_t *first = walls;
+    int i = 0;
     if (!walls)
         return (NULL);
-    object_init(&walls->object, 150, 100, 400, 400);
+    while (i < BOMBER_WALL_NB) {
+        object_init(&walls->object, BOMBERMAN_BASE_WALL_POS[i][0], BOMBERMAN_BASE_WALL_POS[i][1],
+                    30, 30);
+        walls->object.spriteRect.x = 0;
+        walls->object.spriteRect.y = 0;
+        walls->object.spriteRect.h = 30;
+        walls->object.spriteRect.w = 30;
+        walls->display = 1;
+        if (i != BOMBER_WALL_NB - 1) {
+            walls->next = malloc(sizeof(object_queue_t));
+            walls = walls->next;
+        }
+        ++i;
+    }
     walls->next = NULL;
-    return (walls);
+    return (first);
 }
+
+
 
 /*
 void check_walls_players(object_queue_t *walls, SDL_Rect *old_coords, SDL_Rect *new_coords)

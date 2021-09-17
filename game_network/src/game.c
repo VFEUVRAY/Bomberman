@@ -64,9 +64,7 @@ game_t  *game_init(int player_number)
         return (NULL);
     }
 
-    printf("pn %d\n", player_number);
     for (int i = 0 ; i < 4 ; i++) {
-        
         game->pPlayers[i].alive = 0;
         if (i <= player_number) {
             if (!add_player(game))
@@ -75,9 +73,9 @@ game_t  *game_init(int player_number)
     }
     if (!player_init(&game->pPlayer, player_number, game->pRenderer))
         return (NULL);
-    
-    if (!player_number)
-        game->walls = create_walls();
+    my_putstr("before walls\n");
+    game->walls = create_walls();
+    my_putstr("after walls\n");
 
     SDL_Surface *surfacePlayer = IMG_Load("./assets/bombermap.jpg");
     if (!surfacePlayer) {
@@ -94,6 +92,14 @@ game_t  *game_init(int player_number)
         return (NULL);
     }
     game->pBombTexture = SDL_CreateTextureFromSurface(game->pRenderer, surfacePlayer);
+    SDL_FreeSurface(surfacePlayer);
+    surfacePlayer = IMG_Load("./assets/wall.png");
+    if (!surfacePlayer) {
+        my_putCharArray((char const *[]){"Could not open Wall Image:", IMG_GetError(), "\n", NULL}, 2);
+        game_destroy(game);
+        return (NULL);
+    }
+    game->pWallTexture = SDL_CreateTextureFromSurface(game->pRenderer, surfacePlayer);
     SDL_FreeSurface(surfacePlayer);
     return (game);
 }
@@ -131,6 +137,7 @@ void    game_draw(game_t *game)
 {
     int player_index = 0;
     bomb_queue_t *currentBomb = game->pBombs;
+    object_queue_t *current_wall = game->walls;
 
     /*cleanup screen by filling with black*/
     SDL_SetRenderDrawColor(game->pRenderer, 0, 0, 0, 255);
@@ -144,15 +151,22 @@ void    game_draw(game_t *game)
     }
     //SDL_RenderCopy(game->pRenderer, game->pPlayer.oTexture, &game->pPlayer.spriteRect, &game->pPlayer.positionRect);
 
+    while (current_wall) {
+        my_putstr("here\n");
+        if (current_wall->display)
+            SDL_RenderCopy(game->pRenderer, game->pWallTexture, &current_wall->object.spriteRect, &current_wall->object.positionRect);
+        current_wall = current_wall->next;
+    }
+    my_putstr("after wall print\n");
     while (player_index < 4) {
         if (game->pPlayers[player_index].alive) {
-    	    //printf("player is alive\n");
             SDL_RenderCopy(game->pRenderer, game->pPlayers[player_index].oTexture,
                                             &game->pPlayers[player_index].spriteRect,
                                             &game->pPlayers[player_index].positionRect);
         }
         ++player_index;
     }
+    my_putstr("after player print\n");
 
     /*preset render*/
     SDL_RenderPresent(game->pRenderer);

@@ -24,8 +24,6 @@ struct sockaddr_in init_client(int *sock, int *player_number)
 	}
 	my_putstr("connected to server\n");
 	recv(*sock, player_number, sizeof(int), MSG_WAITALL);
-	printf("player_number %d\n", *player_number);
-	//game->playerNumber = player_number;
 	return (server_access);
 }
 
@@ -54,36 +52,13 @@ int read_from_server(int sock, game_packet_t *buffer)
 {
 	int read_size = 0;
 	read_size = recv(sock, buffer, sizeof(game_packet_t) * 4, MSG_WAITALL);
-	//printf("read %d\n", read_size);
 	if (read_size < 0) {
 		my_puterr("Major error while reading from server, exiting\n");
 		return (-1);
 	}
-	//buffer--;
-	//printf("data received 1 %d %d %d %d\n", buffer[0].x, buffer[0].y, buffer[1].x, buffer[1].y);
-	//printf("data received 2 %d %d %d %d\n", buffer[2].x, buffer[2].y, buffer[3].x, buffer[3].y);
 	return (0);
 }
-/*
-int send_to_server(int sock, bool_t (*directions)[4], SDL_Rect coords)
-{
-	int write_size = 0;
-	game_packet_t player_buffer;
-	player_buffer.x = (*directions)[0];
-	player_buffer.x = coords.x;
-	player_buffer.y = coords.y;
-	player_buffer.bomb = 0;
-	write_size = player_buffer.x;
-	printf("%d %d \n", player_buffer.x, player_buffer.y);
-	//write_size = write(sock, &player_buffer, sizeof(game_packet_t));
-	write_size = write(sock, *directions, sizeof(bool_t) * 4);
-	if (write_size < 0) {
-		my_puterr("Major error while sending to server \n");
-		return (84);
-	}
-	return (0);
-}
-*/
+
 int send_to_server(int sock, bool_t (*directions)[5], SDL_Rect coords)
 {
 	int write_size = 0;
@@ -93,8 +68,6 @@ int send_to_server(int sock, bool_t (*directions)[5], SDL_Rect coords)
 	player_buffer.y = coords.y;
 	player_buffer.bomb = 0;
 	write_size = player_buffer.x;
-	//printf("%d %d \n", player_buffer.x, player_buffer.y);
-	//write_size = write(sock, &player_buffer, sizeof(game_packet_t));
 	write_size = write(sock, *directions, sizeof(bool_t) * 5);
 	if (write_size < 0) {
 		my_puterr("Major error while sending to server \n");

@@ -21,6 +21,7 @@ game_server_t *make_server_online_component()
 	serv->current_client = 0;
 	serv->timeout.tv_sec = 0;
 	serv->timeout.tv_usec = 16;
+	serv->timer = 0;
 	return (serv);
 }
 
@@ -73,7 +74,6 @@ int main_game_loop(int player_type)
 
 	int quit = 0;
     while (quit != 1) {
-		//printf("looping\n");
         game_draw(game);
         quit = game_event(game);
 		if (player_type) {
@@ -84,7 +84,6 @@ int main_game_loop(int player_type)
 		pthread_join(server_thread, NULL);
 		if (!player_type)
         	multi_game_move_player(&game->pPlayers[game->playerNumber], game->walls);
-        //multi_game_move_player(&game->pPlayer);
     }
     game_destroy(game);
     return (0);
@@ -96,10 +95,8 @@ int main(int argc, char **argv)
 	int player_type = -1;
 	if (argc > 1 && !strncmp(argv[1], "-s", 2)) {
 		player_type = 0;
-		printf("serveur\n");
 	} else {
 		player_type = 1;
-		printf("client\n");
 	}
 	if (main_game_loop(player_type) > 0) {
 		my_puterr("Exiting with error\n");

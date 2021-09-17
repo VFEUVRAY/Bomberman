@@ -42,6 +42,7 @@ typedef struct game_object_s {
 
 typedef struct object_queue_s {
     game_object_t           object;
+    bool_t                  display;
     struct object_queue_s   *next;
 } object_queue_t;
 
@@ -89,6 +90,7 @@ typedef struct game_s {
 
     SDL_Texture*    pTexPlayer;
     SDL_Texture*    pBombTexture;
+    SDL_Texture*    pWallTexture;
     /*game_object_t   pPlayer;*/
     player_object_t pPlayer;
 	player_object_t *pPlayers;
@@ -122,6 +124,7 @@ typedef struct game_server_s {
     int                 highest_client_fd;
 	struct timeval		timeout;
 	fd_set				readfs;
+    int                 timer;
 } game_server_t;
 
 /* client type structure */
